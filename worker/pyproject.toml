@@ -1,0 +1,37 @@
+[project]
+name = "paperd-worker"
+version = "0.1.0"
+description = "paperd Python worker: PDF conversion (Docling) and embeddings (bge-m3) over localhost HTTP"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+]
+
+[project.optional-dependencies]
+# Heavy ML runtime (multi-GB with PyTorch). Lazily imported at runtime only.
+ml = [
+    "ocrmac>=1.0",
+    "docling>=2.0",
+    "sentence-transformers>=3.0",
+]
+
+[project.scripts]
+paperd-worker = "paperd_worker.main:main"
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "httpx",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/paperd_worker"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

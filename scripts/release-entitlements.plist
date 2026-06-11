@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Hardened Runtime用（→ docs/01 7節）。
+	     App Sandboxは使わない（uv/Pythonワーカーの子プロセス起動・任意パスのライブラリのため）。
+	     ワーカーは.appに同梱されないユーザ環境のPythonであり、JIT等の例外は不要 -->
+</dict>
+</plist>

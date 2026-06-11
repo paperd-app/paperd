@@ -1,0 +1,9 @@
+.build/
+.swiftpm/
+dist/
+.DS_Store
+worker/.venv/
+worker/__pycache__/
+worker/**/__pycache__/
+worker/.pytest_cache/
+*.pyc
