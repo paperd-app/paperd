@@ -18,7 +18,7 @@ do {
 } catch {
     // ライブラリ未初期化でもMCPハンドシェイクは成立させ、ツール呼び出し時に案内を返す（→ docs/07 5節）
     FileHandle.standardError.write(Data("paperd-mcp: \(error)\n".utf8))
-    let message = "paperd アプリを一度起動してライブラリを初期化してください（\(libraryRoot.path) が見つかりません）。"
+    let message = "Launch the paperd app once to initialize the library (\(libraryRoot.path) not found)."
     let tools = PaperdTools(
         store: try! LibraryStore.create(at: FileManager.default.temporaryDirectory.appendingPathComponent("paperd-uninitialized-\(UUID().uuidString)")),
         embedderProvider: { nil },

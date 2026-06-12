@@ -72,10 +72,10 @@ struct CitationGraphView: View {
                 // 凡例（→ docs/08 5節）
                 .overlay(alignment: .topTrailing) {
                     VStack(alignment: .leading, spacing: 3) {
-                        legendRow(.blue, "参考文献（この論文が引用）")
-                        legendRow(.green, "被引用（この論文を引用）")
-                        legendRow(.purple, "相互引用")
-                        legendRow(.gray, "2ホップ先（間接）")
+                        legendRow(.blue, String(localized: "参考文献（この論文が引用）"))
+                        legendRow(.green, String(localized: "被引用（この論文を引用）"))
+                        legendRow(.purple, String(localized: "相互引用"))
+                        legendRow(.gray, String(localized: "2ホップ先（間接）"))
                         HStack(spacing: 5) {
                             Circle().strokeBorder(.orange, lineWidth: 2).frame(width: 9, height: 9)
                             Text("中心").font(.caption2).foregroundStyle(.secondary)

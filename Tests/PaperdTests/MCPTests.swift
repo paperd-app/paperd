@@ -105,7 +105,7 @@ struct MCPTests {
         _ = try await callTool(server, name: "add_paper", args: ["arxiv_id": .string("1706.03762")])
         let (text2, isError2) = try await callTool(server, name: "add_paper", args: ["doi": .string("10.5555/3295222.3295349")])
         #expect(!isError2)
-        #expect(text2.contains("既にライブラリにあります"), Comment(rawValue: text2))
+        #expect(text2.contains("already in the library"), Comment(rawValue: text2))
         #expect(try JobQueue(db: store.db).jobs(status: .queued).count == 1, "ジョブは増えない")
     }
 
@@ -153,7 +153,7 @@ struct MCPTests {
 
         let note = try #require(store.note(of: paper.id))
         #expect(note.hasPrefix("# 自分のメモ"), "既存ノートは保持")
-        #expect(note.contains("## 文献調査（"))
+        #expect(note.contains("## 文献調査 ("))
         #expect(note.contains("調査結果のサマリ"))
         let jobs = try JobQueue(db: store.db).jobs(status: .queued)
         #expect(jobs.contains { $0.kind == "reindex" && $0.origin == "mcp" }, "検索への反映ジョブ")
@@ -269,7 +269,7 @@ struct MCPTests {
         try store.savePaper(paper, authors: [])
         let (text, isError) = try await callTool(server, name: "get_fulltext", args: ["paper_id": .string(paper.id)])
         #expect(isError)
-        #expect(text.contains("全文Markdownがありません"), Comment(rawValue: text))
+        #expect(text.contains("no full-text Markdown"), Comment(rawValue: text))
     }
 
     @Test("search_papers: ヒットとスキーマ")

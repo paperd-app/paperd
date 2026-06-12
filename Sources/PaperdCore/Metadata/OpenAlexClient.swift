@@ -40,7 +40,7 @@ public struct OpenAlexClient: Sendable {
         var urlString = "\(baseURL)\(path)"
         if let mailto { urlString += "?mailto=\(mailto)" }
         guard let url = URL(string: urlString) else {
-            throw MetadataError.network(source: "OpenAlex", message: "不正なURL")
+            throw MetadataError.network(source: "OpenAlex", message: "Invalid URL")
         }
         let response = try await http.send(HTTPRequest(url: url))
         if response.statusCode == 404 {
@@ -50,7 +50,7 @@ public struct OpenAlexClient: Sendable {
             throw MetadataError.network(source: "OpenAlex", message: "HTTP \(response.statusCode)")
         }
         guard let json = try JSONSerialization.jsonObject(with: response.body) as? [String: Any] else {
-            throw MetadataError.parse(source: "OpenAlex", message: "JSONの形式が不正")
+            throw MetadataError.parse(source: "OpenAlex", message: "Malformed JSON response")
         }
         return try Self.parseWork(json)
     }
@@ -89,7 +89,7 @@ public struct OpenAlexClient: Sendable {
 
     func fetchWorkList(urlString: String) async throws -> [WorkInfo] {
         guard let url = URL(string: urlString) else {
-            throw MetadataError.network(source: "OpenAlex", message: "不正なURL")
+            throw MetadataError.network(source: "OpenAlex", message: "Invalid URL")
         }
         let response = try await http.send(HTTPRequest(url: url))
         guard response.isSuccess else {
@@ -98,21 +98,21 @@ public struct OpenAlexClient: Sendable {
         guard let json = try JSONSerialization.jsonObject(with: response.body) as? [String: Any],
               let items = json["results"] as? [[String: Any]]
         else {
-            throw MetadataError.parse(source: "OpenAlex", message: "JSONの形式が不正")
+            throw MetadataError.parse(source: "OpenAlex", message: "Malformed JSON response")
         }
         return items.compactMap { try? Self.parseWork($0) }
     }
 
     static func parse(data: Data) throws -> WorkInfo {
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            throw MetadataError.parse(source: "OpenAlex", message: "JSONの形式が不正")
+            throw MetadataError.parse(source: "OpenAlex", message: "Malformed JSON response")
         }
         return try parseWork(json)
     }
 
     static func parseWork(_ json: [String: Any]) throws -> WorkInfo {
         guard let id = json["id"] as? String else {
-            throw MetadataError.parse(source: "OpenAlex", message: "idがありません")
+            throw MetadataError.parse(source: "OpenAlex", message: "Missing id")
         }
         // "https://openalex.org/W2741809807" → "W2741809807"
         let openalexId = id.split(separator: "/").last.map(String.init) ?? id

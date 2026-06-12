@@ -26,7 +26,7 @@ extension IngestStageExecutors {
     }
 
     public func downloadFile(from url: URL, to destination: URL) async throws {
-        throw IngestError.permanent("このビルドは直接PDFダウンロードに未対応です")
+        throw IngestError.permanent("Direct PDF download is not supported in this build")
     }
 
     /// 既定オプションでのconvert
@@ -44,9 +44,9 @@ public enum IngestError: Error, Equatable, CustomStringConvertible {
 
     public var description: String {
         switch self {
-        case .duplicate(let id): return "重複: 既存論文 \(id)"
+        case .duplicate(let id): return "Duplicate: existing paper \(id)"
         case .permanent(let message): return message
-        case .invalidInput(let message): return "不正な入力: \(message)"
+        case .invalidInput(let message): return "Invalid input: \(message)"
         }
     }
 }
@@ -84,7 +84,7 @@ public struct IngestPipeline: Sendable {
                 try queue.updateStage(job.id, stage: .resolve)
                 stage = .fetch
             }
-            guard let paperId else { throw IngestError.invalidInput("paper_idが未確定です") }
+            guard let paperId else { throw IngestError.invalidInput("paper_id is not yet determined") }
 
             // fetch
             if stage == .fetch {
@@ -184,7 +184,7 @@ public struct IngestPipeline: Sendable {
     func runResolve(job: Job, payload: [String: String]) async throws -> String {
         let parsed = payload["input"].flatMap(PaperIdentifier.parse) ?? parseRaw(payload)
         guard let identifier = parsed else {
-            throw IngestError.invalidInput("解決できない入力: \(payload)")
+            throw IngestError.invalidInput("Unresolvable input: \(payload)")
         }
         // ローカルPDFは別経路: convert先行 → bibliographic検索（→ docs/04 4節）
         if case .localPDF(let path) = identifier {
@@ -193,7 +193,7 @@ public struct IngestPipeline: Sendable {
         // 直接PDF URL: ダウンロードしてローカルPDF解決に帰着（→ docs/04 2節）
         if case .directPDFURL(let urlString) = identifier {
             guard let url = URL(string: urlString) else {
-                throw IngestError.invalidInput("不正なPDF URL: \(urlString)")
+                throw IngestError.invalidInput("Invalid PDF URL: \(urlString)")
             }
             let temp = FileManager.default.temporaryDirectory
                 .appendingPathComponent("paperd-download-\(UUID().uuidString).pdf")
@@ -271,7 +271,7 @@ public struct IngestPipeline: Sendable {
     func runResolveLocalPDF(job: Job, sourcePath: String) async throws -> String {
         let source = URL(fileURLWithPath: sourcePath)
         guard FileManager.default.fileExists(atPath: source.path) else {
-            throw IngestError.invalidInput("PDFが見つかりません: \(sourcePath)")
+            throw IngestError.invalidInput("PDF not found: \(sourcePath)")
         }
 
         // pdf_hash重複検出（PDFドロップ直後 → docs/04 5節）
@@ -435,7 +435,7 @@ public struct IngestPipeline: Sendable {
             if let existing {
                 throw IngestError.duplicate(existingPaperId: existing.id)
             }
-            throw IngestError.permanent("DB制約エラー: \(error.message ?? String(describing: error))")
+            throw IngestError.permanent("DB constraint error: \(error.message ?? String(describing: error))")
         }
     }
 
@@ -598,7 +598,7 @@ public struct IngestPipeline: Sendable {
     }
 
     func runFetch(job: Job, paperId: String) async throws {
-        guard var paper = try store.paper(id: paperId) else { throw IngestError.invalidInput("論文が存在しません: \(paperId)") }
+        guard var paper = try store.paper(id: paperId) else { throw IngestError.invalidInput("Paper does not exist: \(paperId)") }
         let destination = store.layout.pdfPath(paperId)
         if FileManager.default.fileExists(atPath: destination.path) {
             // 既に取得済み（再開 / ユーザ提供）。ハッシュのみ更新
@@ -632,7 +632,7 @@ public struct IngestPipeline: Sendable {
     /// 書誌チャンク（タイトル+アブストラクト）+ 本文チャンク + ノートチャンク（→ docs/06 2節）。
     /// 本文は paper.corrected.md があればそちらを優先（修正がRAGにも反映される → docs/05 5.2節）
     func buildPieces(paperId: String) throws -> [Chunker.Piece] {
-        guard let paper = try store.paper(id: paperId) else { throw IngestError.invalidInput("論文が存在しません: \(paperId)") }
+        guard let paper = try store.paper(id: paperId) else { throw IngestError.invalidInput("Paper does not exist: \(paperId)") }
         var pieces: [Chunker.Piece] = []
         if paper.paperStatus != .pdfOnly {
             pieces.append(chunker.titleAbstractPiece(title: paper.title, abstract: paper.abstract))
@@ -670,8 +670,8 @@ public struct IngestPipeline: Sendable {
     @discardableResult
     public func runReindex(job: Job) async throws -> PaperStatus {
         guard let paperId = job.paperId else {
-            try queue.fail(job.id, error: "reindexにはpaper_idが必要です", permanent: true)
-            throw IngestError.invalidInput("reindexにはpaper_idが必要です")
+            try queue.fail(job.id, error: "reindex requires paper_id", permanent: true)
+            throw IngestError.invalidInput("reindex requires paper_id")
         }
         do {
             let pieces = try buildPieces(paperId: paperId)
@@ -694,13 +694,13 @@ public struct IngestPipeline: Sendable {
     @discardableResult
     public func runReconvert(job: Job) async throws -> PaperStatus {
         guard let paperId = job.paperId else {
-            try queue.fail(job.id, error: "reconvertにはpaper_idが必要です", permanent: true)
-            throw IngestError.invalidInput("reconvertにはpaper_idが必要です")
+            try queue.fail(job.id, error: "reconvert requires paper_id", permanent: true)
+            throw IngestError.invalidInput("reconvert requires paper_id")
         }
         let pdfPath = store.layout.pdfPath(paperId)
         guard FileManager.default.fileExists(atPath: pdfPath.path) else {
-            try queue.fail(job.id, error: "paper.pdfがありません（PDF未取得の論文は再変換できません）", permanent: true)
-            throw IngestError.invalidInput("paper.pdfがありません: \(paperId)")
+            try queue.fail(job.id, error: "paper.pdf is missing (papers without a fetched PDF cannot be reconverted)", permanent: true)
+            throw IngestError.invalidInput("paper.pdf is missing: \(paperId)")
         }
         do {
             let original = try store.paper(id: paperId)?.paperStatus
@@ -720,7 +720,7 @@ public struct IngestPipeline: Sendable {
                 if corrector.hasCorrections(paperId: paperId) {
                     try corrector.revert(
                         paperId: paperId,
-                        note: "superseded by reconvert（高精度再変換により基底テキストが更新されたため修正を破棄）")
+                        note: "superseded by reconvert (corrections discarded because the base text was regenerated by a high-accuracy reconversion)")
                 }
             }
 
@@ -761,7 +761,7 @@ public struct IngestPipeline: Sendable {
             try Int.fetchOne(dbc, sql: "SELECT COUNT(*) FROM chunks WHERE paper_id = ?", arguments: [paperId]) ?? 0
         }
         guard count == expectedChunks else {
-            throw IngestError.permanent("インデックス不整合: chunks=\(count), expected=\(expectedChunks)")
+            throw IngestError.permanent("Index inconsistency: chunks=\(count), expected=\(expectedChunks)")
         }
     }
 

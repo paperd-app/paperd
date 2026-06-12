@@ -9,11 +9,11 @@ public enum LibraryError: Error, Equatable, CustomStringConvertible {
     public var description: String {
         switch self {
         case .notInitialized(let path):
-            return "ライブラリが初期化されていません: \(path)。paperdアプリを一度起動してライブラリを初期化してください。"
+            return "Library is not initialized: \(path). Launch the paperd app once to initialize the library."
         case .paperNotFound(let id):
-            return "論文が見つかりません: \(id)"
+            return "Paper not found: \(id)"
         case .invalidLibrary(let reason):
-            return "ライブラリが不正です: \(reason)"
+            return "Invalid library: \(reason)"
         }
     }
 }
@@ -144,7 +144,7 @@ public final class LibraryStore: Sendable {
         guard let paper = try paper(id: paperId) else { throw LibraryError.paperNotFound(paperId) }
         let destination = layout.pdfPath(paperId)
         guard !FileManager.default.fileExists(atPath: destination.path) else {
-            throw LibraryError.invalidLibrary("この論文には既にPDFがあります")
+            throw LibraryError.invalidLibrary("This paper already has a PDF")
         }
         let hash = try IngestPipeline.sha256(of: source)
         let duplicate = try db.read { dbc in

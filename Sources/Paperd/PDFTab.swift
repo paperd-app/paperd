@@ -121,7 +121,7 @@ struct SupplementsSection: View {
         let panel = NSOpenPanel()
         panel.canChooseFiles = true
         panel.allowsMultipleSelection = true
-        panel.message = "この論文に添付する補助ファイル（Supplementary等）を選択してください"
+        panel.message = String(localized: "この論文に添付する補助ファイル（Supplementary等）を選択してください")
         guard panel.runModal() == .OK else { return }
         for url in panel.urls { model.addSupplement(paperId: paperId, from: url) }
         reload()

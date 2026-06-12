@@ -214,7 +214,7 @@ struct SidebarView: View {
             Section("ライブラリ") {
                 ForEach(AppModel.SmartList.allCases) { list in
                     HStack {
-                        Label(list.rawValue, systemImage: icon(for: list))
+                        Label(list.localizedName, systemImage: icon(for: list))
                         // 件数バッジ: 処理中はジョブ数、ステータス別リストは論文数（→ docs/09 2.1節）
                         if let badge = badgeCount(for: list) {
                             Spacer()
@@ -362,13 +362,13 @@ struct PaperListView: View {
             Menu {
                 // inline: 「並べ替え >」のサブメニュー階層を作らず選択肢を直接並べる
                 Picker("並べ替え", selection: $model.sortOrder) {
-                    ForEach(AppModel.PaperSort.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                    ForEach(AppModel.PaperSort.allCases, id: \.self) { Text($0.localizedName).tag($0) }
                 }
                 .pickerStyle(.inline)
             } label: {
                 Label("並べ替え", systemImage: "arrow.up.arrow.down")
             }
-            .help("並べ替え: \(model.sortOrder.rawValue)")
+            .help("並べ替え: \(model.sortOrder.localizedName)")
             Button {
                 if let selected = selectedPaper { pendingDelete = selected }
             } label: {
@@ -384,7 +384,7 @@ struct PaperListView: View {
                 } label: {
                     Label("このリストをすべて削除…", systemImage: "trash.slash")
                 }
-                .help("「\(list.rawValue)」の論文をすべてゴミ箱に移動")
+                .help("「\(list.localizedName)」の論文をすべてゴミ箱に移動")
             }
         }
         .confirmationDialog(
@@ -472,7 +472,8 @@ struct PaperRow: View {
                 if let relativeScore {
                     Spacer()
                     StrengthBar(ratio: relativeScore)
-                        .help("ヒット強度（トップヒット比 \(Int(relativeScore * 100))%）")
+                        // %は明示specifierでキーに%%として載せる（単独%はString(format:)で%oに化ける）
+                        .help("ヒット強度（トップヒット比 \(Int(relativeScore * 100), specifier: "%lld%%")）")
                 }
             }
             HStack(spacing: 6) {
@@ -545,7 +546,7 @@ struct SearchHitRow: View {
                     }
                     Spacer()
                     if let semantic = hit.semanticScore {
-                        Text("意味 \(Int(semantic * 100))%")
+                        Text("意味 \(Int(semantic * 100), specifier: "%lld%%")")
                             .font(.caption2.monospacedDigit()).foregroundStyle(.purple)
                     }
                     if let rank = hit.keywordRank {
@@ -613,7 +614,7 @@ struct DetailView: View {
            let paper = model.papers.first(where: { $0.id == paperId }) {
             VStack(spacing: 0) {
                 Picker("", selection: $model.detailTab) {
-                    ForEach(AppModel.DetailTab.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                    ForEach(AppModel.DetailTab.allCases, id: \.self) { Text($0.localizedName).tag($0) }
                 }
                 .pickerStyle(.segmented)
                 .padding(8)
@@ -723,13 +724,13 @@ struct InfoTab: View {
                     // 整形済み引用文のコピー（スタイル選択つき → docs/02 2.4節）
                     Menu {
                         ForEach(CitationFormatter.Style.allCases) { style in
-                            Button(style.rawValue) { copyCitation(style: style) }
+                            Button(style.localizedName) { copyCitation(style: style) }
                         }
                     } label: {
                         Label("引用をコピー", systemImage: "quote.opening")
                     }
                     .fixedSize()
-                    .help("スタイルを選んで整形済みの引用文をコピー（前回: \(lastCitationStyle.rawValue)）")
+                    .help("スタイルを選んで整形済みの引用文をコピー（前回: \(lastCitationStyle.localizedName)）")
                     if let webURL = paper.webURL {
                         Button {
                             NSWorkspace.shared.open(webURL)
@@ -807,7 +808,7 @@ struct NotesTab: View {
                 .padding(4)
             Divider()
             HStack {
-                Text("正本: papers/\(paperId.prefix(8))…/notes.md")
+                Text("正本: papers/\(String(paperId.prefix(8)))…/notes.md")
                     .font(.caption).foregroundStyle(.tertiary)
                 Spacer()
                 Button("保存") { model.saveNote(paperId: paperId, content: content) }
@@ -879,7 +880,7 @@ struct MCPIndicator: View {
                 Image(systemName: "sparkles")
                     .font(.system(size: 9))
                     .foregroundStyle(model.mcpLastAccessText != nil ? .purple : .secondary)
-                Text(model.mcpLastAccessText.map { "MCP: \($0)" } ?? "MCP: 未接続")
+                Text(model.mcpLastAccessText.map { "MCP: \($0)" } ?? String(localized: "MCP: 未接続"))
             }
             .font(.caption)
             .foregroundStyle(model.mcpLastAccessText != nil ? .secondary : .tertiary)
@@ -923,9 +924,9 @@ struct WorkerIndicator: View {
 
     var helpText: String {
         switch model.workerStatus {
-        case .running: return "Pythonワーカー（PDF変換・Semantic検索）が稼働中。クリックでワーカー設定を開く"
-        case .stopped: return "ワーカー停止中。クリックでワーカー設定を開く（起動ボタンがあります）"
-        case .notSetup: return "クリックでワーカー設定を開く"
+        case .running: return String(localized: "Pythonワーカー（PDF変換・Semantic検索）が稼働中。クリックでワーカー設定を開く")
+        case .stopped: return String(localized: "ワーカー停止中。クリックでワーカー設定を開く（起動ボタンがあります）")
+        case .notSetup: return String(localized: "クリックでワーカー設定を開く")
         }
     }
 }
@@ -985,4 +986,9 @@ struct JobListPopover: View {
         }
         return "\(job.kind): \(job.payload.prefix(60))"
     }
+}
+
+extension CitationFormatter.Style {
+    /// 表示名。rawValueはUserDefaults保存キーのため固定し、表示のみローカライズする（→ docs/09 10節）
+    var localizedName: String { String(localized: String.LocalizationValue(rawValue)) }
 }

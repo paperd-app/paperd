@@ -1,26 +1,27 @@
 ---
 name: paperd-cite
-description: 執筆中の原稿に対し、paperdライブラリから根拠文献を当てて引用を作る。「この段落に引用を付けて」「この主張の根拠になる論文をライブラリから探して」「参考文献リストを作って」などで使う。
+description: Find supporting references in the paperd library for a manuscript in progress and produce citations. Use for requests like "add citations to this paragraph", "find papers in my library that support this claim", or "build the reference list" (users may phrase these in any language).
 version: 1
 ---
 
-# paperd 執筆引用支援ワークフロー
+# paperd Writing Citation Workflow
 
-ユーザの原稿（段落・主張・箇条書き）に対し、ライブラリの論文から根拠を見つけて引用を整える。
+For the user's manuscript (paragraphs, claims, bullet points), find supporting evidence in the library's papers and prepare the citations.
 
-## 手順
+## Steps
 
-1. 原稿を主張単位に分解する。
-2. 各主張について `search_papers` でライブラリを検索する（主張の言い換え・キーワードの両方で）。
-3. 候補論文は `get_fulltext`（section指定）で該当箇所を確認し、**本当にその主張を支持しているか**検証する。
-   要旨だけで判断しない。支持しない場合は正直に「ライブラリ内に根拠なし」と報告する。
-4. 引用の出力:
-   - LaTeX原稿なら `get_bibtex` でエントリを取得し、`\cite{key}` を主張の位置に挿入した形で提示する
-   - それ以外は著者-年形式（例: (Vaswani et al., 2017)）で挿入し、末尾に参考文献リストを付ける
-5. ライブラリに適切な文献がない主張は、その旨を明示する（Webから論文を探す場合は
-   paperd-researchスキルの取り込み規約に従う）。
+1. Break the manuscript down into individual claims.
+2. For each claim, search the library with `search_papers` (using both a paraphrase of the claim and keywords).
+3. For candidate papers, check the relevant passages with `get_fulltext` (with a section specified) and verify
+   that they **actually support the claim**. Do not judge from the abstract alone. If a paper does not support
+   the claim, report honestly that no supporting evidence exists in the library.
+4. Citation output:
+   - For LaTeX manuscripts, fetch entries with `get_bibtex` and present the text with `\cite{key}` inserted at the claim's position
+   - Otherwise, insert author-year citations (e.g. (Vaswani et al., 2017)) and append a reference list at the end
+5. For claims with no suitable reference in the library, state this explicitly (if searching the web for papers,
+   follow the paperd-research skill's rules for adding them).
 
-## 規約
+## Rules
 
-- 引用は必ず本文確認を経る（「タイトルがそれっぽい」だけで引用しない）
-- BibTeXは get_bibtex の出力をそのまま使う（キーやフィールドを創作しない）
+- Every citation must be verified against the full text (never cite just because "the title looks right")
+- Use `get_bibtex` output as-is for BibTeX (do not invent keys or fields)

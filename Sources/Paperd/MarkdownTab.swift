@@ -69,8 +69,8 @@ struct MarkdownTab: View {
             Label("文字化けの疑い \(total)件", systemImage: "exclamationmark.triangle.fill")
                 .font(.caption)
                 .foregroundStyle(.orange)
-                .help(warnings.map { "\($0.kind.rawValue): \($0.count)件（例: \($0.sample)）" }.joined(separator: "\n")
-                      + "\n\nMCP経由でAIに修正させるか、「高精度で再変換」を試してください")
+                .help(warnings.map { String(localized: "\($0.kind.rawValue): \($0.count)件（例: \($0.sample)）") }.joined(separator: "\n")
+                      + String(localized: "\n\nMCP経由でAIに修正させるか、「高精度で再変換」を試してください"))
         }
     }
 }

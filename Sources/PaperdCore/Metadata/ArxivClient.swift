@@ -12,7 +12,7 @@ public struct ArxivClient: Sendable {
 
     public func resolve(arxivId: String) async throws -> ResolvedMetadata {
         guard let url = URL(string: "\(baseURL)?id_list=\(arxivId)&max_results=1") else {
-            throw MetadataError.network(source: "arXiv", message: "不正なURL")
+            throw MetadataError.network(source: "arXiv", message: "Invalid URL")
         }
         let response = try await http.send(HTTPRequest(url: url))
         guard response.isSuccess else {

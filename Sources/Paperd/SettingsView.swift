@@ -77,7 +77,7 @@ struct SettingsView: View {
                     .font(.caption).foregroundStyle(.secondary)
                 // 接続の可視化（→ docs/07 6節）
                 LabeledContent("最終アクセス") {
-                    Text(lastAccessText ?? "記録なし（まだ接続されていません）")
+                    Text(lastAccessText ?? String(localized: "記録なし（まだ接続されていません）"))
                         .foregroundStyle(lastAccessText == nil ? .secondary : .primary)
                 }
                 .task {
@@ -185,7 +185,7 @@ struct WorkerSetupView: View {
             Text("環境構築はDocling + PyTorchで2〜3GBのダウンロードを伴います。embeddingモデル（bge-m3、約2GB）は初回利用時に取得されます。")
                 .font(.caption).foregroundStyle(.secondary)
             ScrollView {
-                Text(log.isEmpty ? "ログ出力" : log)
+                Text(log.isEmpty ? String(localized: "ログ出力") : log)
                     .font(.caption.monospaced())
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .textSelection(.enabled)
@@ -224,7 +224,7 @@ struct WorkerSetupView: View {
                 process.waitUntilExit()
                 let status = process.terminationStatus
                 await MainActor.run {
-                    log += status == 0 ? "✅ 完了\n" : "❌ 終了コード \(status)\n"
+                    log += status == 0 ? String(localized: "✅ 完了\n") : String(localized: "❌ 終了コード \(Int(status))\n")
                     isRunning = false
                 }
             } catch {
@@ -239,7 +239,7 @@ struct WorkerSetupView: View {
     /// worker.lock経由の常駐起動。アプリ終了後もMCPから再利用される
     func startWorker() {
         let dir = workerDir
-        log = "ワーカーを起動中…\n"
+        log = String(localized: "ワーカーを起動中…\n")
         isRunning = true
         Task.detached {
             do {
@@ -247,7 +247,7 @@ struct WorkerSetupView: View {
                 let client = try await manager.startOrReuseVerified()
                 let health = try await client.health()
                 await MainActor.run {
-                    log += "✅ 起動: \(client.baseURL) (model_loaded: \(health.modelLoaded))\n"
+                    log += String(localized: "✅ 起動: \(client.baseURL.absoluteString) (model_loaded: \(String(describing: health.modelLoaded)))\n")
                     isRunning = false
                 }
             } catch {
@@ -262,10 +262,10 @@ struct WorkerSetupView: View {
 
 extension SettingsView {
     static let samplePrompts = [
-        "ライブラリから分極スイッチングに関する論文を探して、要点を比較して",
-        "「Attention is All you Need」の手法の章を全文から要約して",
-        "強誘電体について文献調査して。重要な未所持論文があれば提案して",
-        "この論文の変換ミスをPDFと照合して修正して",
+        String(localized: "ライブラリから分極スイッチングに関する論文を探して、要点を比較して"),
+        String(localized: "「Attention is All you Need」の手法の章を全文から要約して"),
+        String(localized: "強誘電体について文献調査して。重要な未所持論文があれば提案して"),
+        String(localized: "この論文の変換ミスをPDFと照合して修正して"),
     ]
 }
 
@@ -288,8 +288,8 @@ struct SkillInstallSection: View {
                     .disabled(installer == nil || skills.isEmpty || status == .installed)
             }
             Text(skills.isEmpty
-                 ? "（このビルドにはスキルが同梱されていません）"
-                 : "文献調査・変換修正・執筆引用の定型ワークフロー（\(skills.joined(separator: " / "))）をClaude Codeのスキルとしてインストールします。")
+                 ? String(localized: "（このビルドにはスキルが同梱されていません）")
+                 : String(localized: "文献調査・変換修正・執筆引用の定型ワークフロー（\(skills.joined(separator: " / "))）をClaude Codeのスキルとしてインストールします。"))
                 .font(.caption).foregroundStyle(.secondary)
             if let message {
                 Label(message, systemImage: "checkmark.circle.fill")
@@ -311,9 +311,9 @@ struct SkillInstallSection: View {
 
     var buttonTitle: String {
         switch status {
-        case .notInstalled: return "インストール…"
-        case .needsUpdate: return "更新…"
-        case .installed: return "インストール済み"
+        case .notInstalled: return String(localized: "インストール…")
+        case .needsUpdate: return String(localized: "更新…")
+        case .installed: return String(localized: "インストール済み")
         }
     }
 
@@ -345,7 +345,7 @@ struct SkillInstallSection: View {
         do {
             try installer.installAll()
             status = installer.overallStatus()
-            message = "インストールしました（\(SkillInstaller.defaultDestDir.path)）"
+            message = String(localized: "インストールしました（\(SkillInstaller.defaultDestDir.path)）")
         } catch {
             message = nil
         }

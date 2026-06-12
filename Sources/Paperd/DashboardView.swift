@@ -17,10 +17,10 @@ struct LibraryDashboardView: View {
 
                 // 統計の大きな数字
                 HStack(spacing: 14) {
-                    statCard(value: papers.count, label: "論文", icon: "books.vertical.fill", color: .blue)
+                    statCard(value: papers.count, label: String(localized: "論文"), icon: "books.vertical.fill", color: .blue)
                     statCard(value: papers.filter { $0.paperStatus == .indexed }.count,
-                             label: "全文検索可能", icon: "magnifyingglass", color: .teal)
-                    statCard(value: notedCount, label: "ノートあり", icon: "note.text", color: .orange)
+                             label: String(localized: "全文検索可能"), icon: "magnifyingglass", color: .teal)
+                    statCard(value: notedCount, label: String(localized: "ノートあり"), icon: "note.text", color: .orange)
                 }
 
                 if papers.count > 1 {
@@ -28,7 +28,7 @@ struct LibraryDashboardView: View {
                 }
 
                 if !recentPapers.isEmpty {
-                    section("最近追加") {
+                    section(String(localized: "最近追加")) {
                         ForEach(recentPapers, id: \.id) { paper in
                             Button {
                                 model.selectedPaperId = paper.id
@@ -109,7 +109,7 @@ struct LibraryDashboardView: View {
         let maxCount = buckets.values.max() ?? 1
         let range = Array(lo...hi)
 
-        return AnyView(section("出版年の分布") {
+        return AnyView(section(String(localized: "出版年の分布")) {
             VStack(alignment: .leading, spacing: 4) {
                 Canvas { context, size in
                     let barWidth = size.width / CGFloat(range.count)
@@ -140,7 +140,7 @@ struct LibraryDashboardView: View {
             (.pdfMissing, "doc.badge.ellipsis"), (.unresolved, "questionmark.text.page"), (.failed, "xmark.octagon"),
         ].compactMap { list, icon in model.count(for: list) != nil ? (list, icon) : nil }
         if !items.isEmpty {
-            section("対応待ち") {
+            section(String(localized: "対応待ち")) {
                 HStack(spacing: 10) {
                     ForEach(items, id: \.0) { list, icon in
                         Button {
@@ -148,14 +148,14 @@ struct LibraryDashboardView: View {
                         } label: {
                             HStack(spacing: 5) {
                                 Image(systemName: icon).font(.caption)
-                                Text("\(list.rawValue) \(model.count(for: list) ?? 0)")
+                                Text("\(list.localizedName) \(model.count(for: list) ?? 0)")
                             }
                             .font(.callout)
                             .padding(.horizontal, 10).padding(.vertical, 5)
                             .background(.quaternary.opacity(0.6), in: Capsule())
                         }
                         .buttonStyle(.plain)
-                        .help("「\(list.rawValue)」リストを開く")
+                        .help("「\(list.localizedName)」リストを開く")
                     }
                 }
             }
@@ -181,7 +181,7 @@ struct StatusListPanel: View {
             Image(systemName: icon)
                 .font(.system(size: 40))
                 .foregroundStyle(.secondary)
-            Text(list.rawValue).font(.title2.bold())
+            Text(list.localizedName).font(.title2.bold())
             Text(explanation)
                 .font(.callout)
                 .multilineTextAlignment(.center)
@@ -203,7 +203,7 @@ struct StatusListPanel: View {
         }
         .padding(40)
         .confirmationDialog(
-            "「\(list.rawValue)」の \(model.visiblePapers.count) 件をすべて削除しますか？",
+            "「\(list.localizedName)」の \(model.visiblePapers.count) 件をすべて削除しますか？",
             isPresented: $showBulkDeleteConfirm,
             titleVisibility: .visible
         ) {
@@ -228,11 +228,11 @@ struct StatusListPanel: View {
     var explanation: String {
         switch list {
         case .pdfMissing:
-            return "paywall等でPDFを取得できなかった、または書誌のみ登録した論文です。書誌・BibTeX・タイトル+アブストの検索は機能しています。論文を選択してPDFタブの「代替PDFを自動で探す」でプレプリント版・OA版を再探索するか、入手したPDFをPDFタブへドロップすると全文が索引化されます。"
+            return String(localized: "paywall等でPDFを取得できなかった、または書誌のみ登録した論文です。書誌・BibTeX・タイトル+アブストの検索は機能しています。論文を選択してPDFタブの「代替PDFを自動で探す」でプレプリント版・OA版を再探索するか、入手したPDFをPDFタブへドロップすると全文が索引化されます。")
         case .unresolved:
-            return "PDFはありますが書誌（メタデータ）が特定できていない論文です。BibTeXの生成や引用グラフが使えません。論文を選択して「メタデータ未解決」バナーからDOI / arXiv IDを指定すると解決できます。"
+            return String(localized: "PDFはありますが書誌（メタデータ）が特定できていない論文です。BibTeXの生成や引用グラフが使えません。論文を選択して「メタデータ未解決」バナーからDOI / arXiv IDを指定すると解決できます。")
         case .failed:
-            return "取り込み処理に失敗した論文です。ステータスバーのジョブ一覧から再試行するか、不要であればまとめて削除できます。"
+            return String(localized: "取り込み処理に失敗した論文です。ステータスバーのジョブ一覧から再試行するか、不要であればまとめて削除できます。")
         default:
             return ""
         }

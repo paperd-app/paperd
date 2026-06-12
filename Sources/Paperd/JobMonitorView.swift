@@ -28,14 +28,14 @@ struct JobMonitorView: View {
                 }
 
                 if !running.isEmpty {
-                    sectionHeader("実行中", count: running.count)
+                    sectionHeader(String(localized: "実行中"), count: running.count)
                     ForEach(running, id: \.id) { job in
                         runningCard(job)
                     }
                 }
 
                 if !queued.isEmpty {
-                    sectionHeader("待機中", count: queued.count)
+                    sectionHeader(String(localized: "待機中"), count: queued.count)
                     ForEach(queued, id: \.id) { job in
                         HStack {
                             Image(systemName: "clock").foregroundStyle(.tertiary).font(.caption)
@@ -49,7 +49,7 @@ struct JobMonitorView: View {
 
                 if !model.failedJobs.isEmpty {
                     HStack {
-                        sectionHeader("失敗", count: model.failedJobs.count)
+                        sectionHeader(String(localized: "失敗"), count: model.failedJobs.count)
                         Spacer()
                         Button("すべて無視") { model.dismissAllFailedJobs() }
                             .controlSize(.small)
@@ -141,10 +141,10 @@ struct JobMonitorView: View {
 
     func kindLabel(_ kind: String) -> String {
         switch kind {
-        case "ingest": return "取り込み"
-        case "reindex": return "検索インデックス更新"
-        case "reconvert": return "高精度再変換"
-        case "refetch_citations": return "引用情報の取得"
+        case "ingest": return String(localized: "取り込み")
+        case "reindex": return String(localized: "検索インデックス更新")
+        case "reconvert": return String(localized: "高精度再変換")
+        case "refetch_citations": return String(localized: "引用情報の取得")
         default: return kind
         }
     }
@@ -152,7 +152,7 @@ struct JobMonitorView: View {
     func elapsed(of job: Job) -> String {
         guard let created = PaperdDates.date(from: job.createdAt) else { return "" }
         let seconds = Int(Date().timeIntervalSince(created))
-        if seconds < 60 { return "\(seconds)秒" }
-        return "\(seconds / 60)分\(seconds % 60)秒"
+        if seconds < 60 { return String(localized: "\(seconds)秒") }
+        return String(localized: "\(seconds / 60)分\(seconds % 60)秒")
     }
 }

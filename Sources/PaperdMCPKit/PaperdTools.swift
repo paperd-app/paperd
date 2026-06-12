@@ -33,16 +33,16 @@ public struct PaperdTools: Sendable {
     public static let definitions: [JSONValue] = [
         toolDef(
             name: "search_papers",
-            description: "ユーザの論文ライブラリを自然言語またはキーワードで全文検索する。本文チャンク単位でヒットし、該当箇所のスニペットを返す。",
+            description: "Full-text search over the user's paper library using natural language or keywords. Hits are per body chunk; returns a snippet for each hit.",
             properties: [
-                "query": .object(["type": .string("string"), "description": .string("検索クエリ（自然言語可）")]),
+                "query": .object(["type": .string("string"), "description": .string("Search query (natural language allowed)")]),
                 "top_k": .object(["type": .string("integer"), "default": .number(10), "maximum": .number(50)]),
             ],
             required: ["query"]
         ),
         toolDef(
             name: "get_bibtex",
-            description: "論文のBibTeXエントリを返す。paper_id / doi / arxiv_id のいずれか1つで指定する。",
+            description: "Return the BibTeX entry for a paper. Identify the paper by exactly one of paper_id, doi, or arxiv_id.",
             properties: [
                 "paper_id": .object(["type": .string("string")]),
                 "doi": .object(["type": .string("string")]),
@@ -52,16 +52,16 @@ public struct PaperdTools: Sendable {
         ),
         toolDef(
             name: "get_fulltext",
-            description: "論文の全文Markdown（paper.md）を返す。section を指定するとそのセクションのみ抜粋する。長い論文では全文が文字数上限で切り詰められるため、まず get_paper_metadata でセクション一覧を確認し section 指定での取得を推奨。",
+            description: "Return the paper's full-text Markdown (paper.md). If section is given, return only that section. For long papers the full text is truncated at a character limit, so it is recommended to first check the section list via get_paper_metadata and fetch by section.",
             properties: [
                 "paper_id": .object(["type": .string("string")]),
-                "section": .object(["type": .string("string"), "description": .string("セクション見出しまたはsection_path（任意）")]),
+                "section": .object(["type": .string("string"), "description": .string("Section heading or section_path (optional)")]),
             ],
             required: ["paper_id"]
         ),
         toolDef(
             name: "get_paper_metadata",
-            description: "論文の書誌メタデータ（タイトル・著者・年・DOI・ステータス・セクション一覧等）をJSONで返す。",
+            description: "Return the paper's bibliographic metadata (title, authors, year, DOI, status, section list, etc.) as JSON.",
             properties: [
                 "paper_id": .object(["type": .string("string")]),
             ],
@@ -69,7 +69,7 @@ public struct PaperdTools: Sendable {
         ),
         toolDef(
             name: "add_paper",
-            description: "arXiv ID / DOI / URL からライブラリに論文を追加する。書誌情報は即時返却されるが、PDF取得・変換・検索インデックス化は paperd アプリが非同期で実行する。",
+            description: "Add a paper to the library by arXiv ID, DOI, or URL. Bibliographic metadata is returned immediately; PDF download, conversion, and search indexing are performed asynchronously by the paperd app.",
             properties: [
                 "arxiv_id": .object(["type": .string("string")]),
                 "doi": .object(["type": .string("string")]),
@@ -79,17 +79,17 @@ public struct PaperdTools: Sendable {
         ),
         toolDef(
             name: "add_note",
-            description: "論文のノート（notes.md）にMarkdownテキストを追記する。調査メモ・要約の保存用。既存のノートは保持され、追記は日付見出し付きセクションとして末尾に追加される。追記後はノートが全文検索の対象になる。",
+            description: "Append Markdown text to the paper's notes (notes.md). Use this to save research memos and summaries. Existing notes are preserved; the new text is appended at the end as a section with a dated heading. Appended notes become full-text searchable.",
             properties: [
                 "paper_id": .object(["type": .string("string")]),
-                "content": .object(["type": .string("string"), "description": .string("追記するMarkdownテキスト")]),
-                "heading": .object(["type": .string("string"), "description": .string("セクション見出し（省略時は「AIメモ」）")]),
+                "content": .object(["type": .string("string"), "description": .string("Markdown text to append")]),
+                "heading": .object(["type": .string("string"), "description": .string("Section heading (defaults to 'AI Notes')")]),
             ],
             required: ["paper_id", "content"]
         ),
         .object([
             "name": .string("apply_fulltext_patches"),
-            "description": .string("論文Markdownの変換ミスをパッチ（find→replace）で修正する。各findは現在の本文に正確に1回出現する必要がある。修正前に必ずPDF原文（get_paper_metadataのpdf_path）と照合し、原文にない内容を書き込まないこと。修正後は検索インデックスが自動で再構築される。"),
+            "description": .string("Fix conversion errors in a paper's Markdown by applying patches (find→replace). Each find must occur exactly once in the current text. Before patching, always verify against the original PDF (pdf_path from get_paper_metadata) and never write content that is not in the original. The search index is rebuilt automatically after patching."),
             "inputSchema": .object([
                 "type": .string("object"),
                 "properties": .object([
@@ -99,13 +99,13 @@ public struct PaperdTools: Sendable {
                         "items": .object([
                             "type": .string("object"),
                             "properties": .object([
-                                "find": .object(["type": .string("string"), "description": .string("現在の本文中の誤り箇所（一意に特定できる長さで）")]),
-                                "replace": .object(["type": .string("string"), "description": .string("修正後のテキスト")]),
+                                "find": .object(["type": .string("string"), "description": .string("Erroneous text in the current body (long enough to be unique)")]),
+                                "replace": .object(["type": .string("string"), "description": .string("Corrected text")]),
                             ]),
                             "required": .array([.string("find"), .string("replace")]),
                         ]),
                     ]),
-                    "note": .object(["type": .string("string"), "description": .string("修正の根拠メモ（履歴に記録、任意）")]),
+                    "note": .object(["type": .string("string"), "description": .string("Rationale for the fix (recorded in history, optional)")]),
                 ]),
                 "required": .array([.string("paper_id"), .string("patches")]),
             ]),
@@ -138,18 +138,18 @@ public struct PaperdTools: Sendable {
             case "apply_fulltext_patches": return try applyFulltextPatches(arguments)
             case "add_note": return try addNote(arguments)
             default:
-                return .error("未知のツール: \(name)")
+                return .error("Unknown tool: \(name)")
             }
         } catch let error as LibraryError {
             return .error(error.description)
         } catch let error as MetadataError {
-            return .error("メタデータ解決に失敗しました: \(error.description)。ジョブは投入していません。")
+            return .error("Metadata resolution failed: \(error.description). No job was enqueued.")
         } catch {
             let message = String(describing: error)
             if message.lowercased().contains("busy") || message.contains("locked") {
-                return .error("ライブラリが他の処理で使用中です。しばらくして再試行してください。")
+                return .error("The library is busy with another operation. Please retry shortly.")
             }
-            return .error("エラー: \(message)")
+            return .error("Error: \(message)")
         }
     }
 
@@ -157,7 +157,7 @@ public struct PaperdTools: Sendable {
 
     func searchPapers(_ args: [String: JSONValue]) async throws -> ToolCallResult {
         guard let query = args["query"]?.stringValue, !query.isEmpty else {
-            return .error("query は必須です。例: {\"query\": \"attention mechanism\"}")
+            return .error("query is required. Example: {\"query\": \"attention mechanism\"}")
         }
         let topK = min(args["top_k"]?.intValue ?? 10, 50)
 
@@ -202,21 +202,21 @@ public struct PaperdTools: Sendable {
         if let paperId = args["paper_id"]?.stringValue {
             paper = try store.paper(id: paperId)
             guard paper != nil else {
-                return .error("paper_id「\(paperId)」が見つかりません。UUID形式（例: 8f14e45f-...）で指定してください。")
+                return .error("paper_id '\(paperId)' not found. Specify it as a UUID (e.g. 8f14e45f-...).")
             }
         } else if let doi = args["doi"]?.stringValue {
             paper = try store.db.read { try Paper.filter(Column("doi") == doi).fetchOne($0) }
             guard paper != nil else {
-                return .error("DOI「\(doi)」がライブラリにありません。例: 10.5555/3295222.3295349")
+                return .error("DOI '\(doi)' is not in the library. Example: 10.5555/3295222.3295349")
             }
         } else if let arxivId = args["arxiv_id"]?.stringValue {
             let normalized = PaperIdentifier.parseArxivID(arxivId)?.id ?? arxivId
             paper = try store.db.read { try Paper.filter(Column("arxiv_id") == normalized).fetchOne($0) }
             guard paper != nil else {
-                return .error("arXiv ID「\(arxivId)」がライブラリにありません。例: 1706.03762")
+                return .error("arXiv ID '\(arxivId)' is not in the library. Example: 1706.03762")
             }
         } else {
-            return .error("paper_id / doi / arxiv_id のいずれか1つを指定してください。")
+            return .error("Specify exactly one of paper_id, doi, or arxiv_id.")
         }
 
         let p = paper!
@@ -243,15 +243,15 @@ public struct PaperdTools: Sendable {
 
     func getFulltext(_ args: [String: JSONValue]) throws -> ToolCallResult {
         guard let paperId = args["paper_id"]?.stringValue else {
-            return .error("paper_id は必須です。")
+            return .error("paper_id is required.")
         }
         guard try store.paper(id: paperId) != nil else {
-            return .error("paper_id「\(paperId)」が見つかりません。")
+            return .error("paper_id '\(paperId)' not found.")
         }
         // 有効Markdown（paper.corrected.md優先 → docs/05 5.2節, docs/07 3節）
         let corrector = FulltextCorrector(layout: store.layout)
         guard let fulltext = corrector.effectiveMarkdown(paperId: paperId) else {
-            return .error("この論文にはまだ全文Markdownがありません（PDF未取得または変換待ち）。get_paper_metadata でステータスを確認してください。")
+            return .error("This paper has no full-text Markdown yet (PDF not fetched or conversion pending). Check the status with get_paper_metadata.")
         }
 
         // section指定: chunks.section_pathとの前方一致で該当チャンクを返す（→ docs/07 2.3）
@@ -271,11 +271,12 @@ public struct PaperdTools: Sendable {
 
 
                     ---
-                    （注: 検索インデックスは修正の反映待ちのため、修正版Markdownから見出し抽出で返しています。\
-                    下位小節が欠けている場合は section 指定なしの get_fulltext で全文を取得してください）
+                    (Note: the search index has not yet caught up with the corrections, so this section was extracted \
+                    by heading from the corrected Markdown. If subsections appear to be missing, call get_fulltext \
+                    without the section parameter to get the full text.)
                     """)
                 }
-                staleWarning = "⚠ この論文には検索インデックス未反映の修正があります（paperdアプリがバックグラウンドで反映します）。正確な本文は section 指定なしの get_fulltext で取得してください。\n\n"
+                staleWarning = "⚠ This paper has corrections not yet reflected in the search index (the paperd app applies them in the background). For the accurate text, call get_fulltext without the section parameter.\n\n"
             }
             let chunks = try store.db.read { dbc in
                 try Row.fetchAll(dbc, sql: """
@@ -286,7 +287,7 @@ public struct PaperdTools: Sendable {
             }
             guard !chunks.isEmpty else {
                 let sections = try sectionList(paperId: paperId)
-                return .error("セクション「\(section)」が見つかりません。利用可能: \(sections.joined(separator: ", "))")
+                return .error("Section '\(section)' not found. Available: \(sections.joined(separator: ", "))")
             }
             let text = chunks.map { row -> String in
                 let path: String? = row["section_path"]
@@ -319,10 +320,10 @@ public struct PaperdTools: Sendable {
 
     func getPaperMetadata(_ args: [String: JSONValue]) throws -> ToolCallResult {
         guard let paperId = args["paper_id"]?.stringValue else {
-            return .error("paper_id は必須です。")
+            return .error("paper_id is required.")
         }
         guard let paper = try store.paper(id: paperId) else {
-            return .error("paper_id「\(paperId)」が見つかりません。")
+            return .error("paper_id '\(paperId)' not found.")
         }
         // meta.json相当 + sections（→ docs/07 2.4）
         let meta: PaperMeta
@@ -367,17 +368,17 @@ public struct PaperdTools: Sendable {
 
     func addNote(_ args: [String: JSONValue]) throws -> ToolCallResult {
         guard let paperId = args["paper_id"]?.stringValue else {
-            return .error("paper_id は必須です。")
+            return .error("paper_id is required.")
         }
         guard let content = args["content"]?.stringValue, !content.isEmpty else {
-            return .error("content は必須です。")
+            return .error("content is required.")
         }
         guard let paper = try store.paper(id: paperId), !paper.isStub else {
-            return .error("論文が見つかりません: \(paperId)")
+            return .error("Paper not found: \(paperId)")
         }
-        let heading = args["heading"]?.stringValue ?? "AIメモ"
+        let heading = args["heading"]?.stringValue ?? "AI Notes"
         let date = String(PaperdDates.nowString().prefix(10))
-        let section = "## \(heading)（\(date)）\n\n\(content)"
+        let section = "## \(heading) (\(date))\n\n\(content)"
         // 既存ノートは保持し、末尾に追記（AIがユーザのメモを上書きしない → docs/07 2.7節）
         let existing = store.note(of: paperId)
         let merged = existing.map { $0.hasSuffix("\n") ? $0 + "\n" + section : $0 + "\n\n" + section } ?? section
@@ -385,23 +386,23 @@ public struct PaperdTools: Sendable {
         // ノートを全文検索へ反映（→ docs/06 2節）
         let queue = JobQueue(db: store.db)
         try queue.enqueueIfAbsent(kind: .reindex, paperId: paperId, origin: .mcp)
-        return ToolCallResult(text: "ノートに追記しました（\(paper.title)）。検索インデックスはバックグラウンドで更新されます。")
+        return ToolCallResult(text: "Appended to notes (\(paper.title)). The search index will be updated in the background.")
     }
 
     func applyFulltextPatches(_ args: [String: JSONValue]) throws -> ToolCallResult {
         guard let paperId = args["paper_id"]?.stringValue else {
-            return .error("paper_id は必須です。")
+            return .error("paper_id is required.")
         }
         guard try store.paper(id: paperId) != nil else {
-            return .error("paper_id「\(paperId)」が見つかりません。")
+            return .error("paper_id '\(paperId)' not found.")
         }
         guard case .array(let patchValues)? = args["patches"], !patchValues.isEmpty else {
-            return .error("patches は必須です。例: [{\"find\": \"103 Å\", \"replace\": \"10³ Å\"}]")
+            return .error("patches is required. Example: [{\"find\": \"103 Å\", \"replace\": \"10³ Å\"}]")
         }
         var patches: [FulltextCorrector.Patch] = []
         for value in patchValues {
             guard let find = value["find"]?.stringValue, let replace = value["replace"]?.stringValue, !find.isEmpty else {
-                return .error("各パッチには find / replace（空でない文字列）が必要です。")
+                return .error("Each patch requires find and replace (non-empty strings).")
             }
             patches.append(.init(find: find, replace: replace))
         }
@@ -410,7 +411,7 @@ public struct PaperdTools: Sendable {
         do {
             try corrector.apply(paperId: paperId, patches: patches, note: args["note"]?.stringValue)
         } catch let error as FulltextCorrector.PatchError {
-            return .error("\(error.description)（パッチは1件も適用されていません）")
+            return .error("\(error.description) (no patches were applied)")
         }
 
         // 修正版からの再チャンク・再embeddingをアプリへ委譲（→ docs/07 3節）
@@ -424,7 +425,7 @@ public struct PaperdTools: Sendable {
         return ToolCallResult(text: Self.jsonString(.object([
             "paper_id": .string(paperId),
             "applied": .number(Double(patches.count)),
-            "message": .string("\(patches.count)件のパッチを paper.corrected.md に適用しました。検索インデックスの再構築は paperd アプリがバックグラウンドで実行します（アプリ非起動時は次回起動時）。元の変換結果（paper.md）は保持されています。"),
+            "message": .string("Applied \(patches.count) patch(es) to paper.corrected.md. The paperd app rebuilds the search index in the background (or on next launch if the app is not running). The original conversion output (paper.md) is preserved."),
         ])))
     }
 
@@ -440,7 +441,7 @@ public struct PaperdTools: Sendable {
             identifier = PaperIdentifier.parseURL(url)
         }
         guard let identifier else {
-            return .error("arxiv_id / doi / url のいずれかを正しい形式で指定してください。例: {\"arxiv_id\": \"1706.03762\"}")
+            return .error("Specify one of arxiv_id, doi, or url in a valid format. Example: {\"arxiv_id\": \"1706.03762\"}")
         }
 
         // 1. メタデータ解決を同期実行（→ docs/07 2.5）
@@ -457,7 +458,7 @@ public struct PaperdTools: Sendable {
                 "paper_id": .string(existing.id),
                 "title": .string(existing.title),
                 "status": .string(existing.status),
-                "message": .string("この論文は既にライブラリにあります。"),
+                "message": .string("This paper is already in the library."),
             ])))
         }
 
@@ -487,7 +488,7 @@ public struct PaperdTools: Sendable {
             "title": .string(paper.title),
             "year": paper.year.map { .number(Double($0)) } ?? .null,
             "status": .string(paper.status),
-            "message": .string("書誌情報を登録しました。PDF取得と全文インデックス化は paperd アプリがバックグラウンドで実行します。アプリが起動していない場合は次回起動時に処理されます。"),
+            "message": .string("Bibliographic metadata registered. The paperd app downloads the PDF and builds the full-text index in the background. If the app is not running, this happens on its next launch."),
         ])))
     }
 

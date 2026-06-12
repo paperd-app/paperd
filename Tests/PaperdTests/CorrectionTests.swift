@@ -391,7 +391,7 @@ struct MCPCorrectionTests {
             "patches": .array([.object(["find": .string("not in the text"), "replace": .string("x")])]),
         ])
         #expect(isError)
-        #expect(text.contains("見つかりません"), Comment(rawValue: text))
+        #expect(text.contains("not found"), Comment(rawValue: text))
         #expect(!FulltextCorrector(layout: store.layout).hasCorrections(paperId: paper.id))
         #expect(try JobQueue(db: store.db).jobs(status: .queued).isEmpty, "ジョブも投入されない")
     }
@@ -474,7 +474,7 @@ struct CorrectedSectionTests {
         #expect(!result.isError)
         #expect(result.text.contains("fixed 10^3 Å text"), "修正版が返る: \(result.text)")
         #expect(!result.text.contains("broken 103 A text"), "旧チャンクを返さない")
-        #expect(result.text.contains("反映待ち"), "反映待ちの注記つき")
+        #expect(result.text.contains("not yet caught up"), "反映待ちの注記つき")
 
         // 抽出不能なセクション名 → 旧チャンクに警告ヘッダ
         let fallback = await tools.call(name: "get_fulltext", arguments: [

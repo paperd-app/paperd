@@ -35,12 +35,12 @@ public struct CitationFetcher: Sendable {
     public func refetch(paperId: String) async throws {
         let paper = try db.read { try Paper.fetchOne($0, key: paperId) }
         guard let paper else {
-            throw IngestError.invalidInput("論文が存在しません: \(paperId)")
+            throw IngestError.invalidInput("Paper does not exist: \(paperId)")
         }
         let s2Identifier = Self.s2Identifier(for: paper)
         guard s2Identifier != nil || paper.openalexId != nil else {
             // 外部IDなし（ローカルPDFのみ等）はエッジ取得不能。恒久的（リトライ無意味）
-            throw IngestError.permanent("引用取得に必要な外部ID（S2/DOI/arXiv/OpenAlex）がありません: \(paperId)")
+            throw IngestError.permanent("No external ID (S2/DOI/arXiv/OpenAlex) available for citation fetch: \(paperId)")
         }
 
         // 一次: Semantic Scholar
@@ -77,7 +77,7 @@ public struct CitationFetcher: Sendable {
         if s2Error != nil || (s2Identifier == nil) {
             let oaUsable = paper.openalexId != nil && openAlex != nil && oaError == nil
             if !oaUsable {
-                throw s2Error ?? oaError ?? IngestError.permanent("引用取得に失敗しました")
+                throw s2Error ?? oaError ?? IngestError.permanent("Failed to fetch citations")
             }
         }
 

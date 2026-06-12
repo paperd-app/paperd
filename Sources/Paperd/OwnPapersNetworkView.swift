@@ -66,11 +66,11 @@ struct OwnPapersNetworkView: View {
                     .foregroundStyle(.white.opacity(0.9))
             }
             HStack(spacing: 18) {
-                statChip("doc.text.fill", "自著 \(network.ownIds.count) 本")
-                statChip("quote.opening", "被引用 \(network.incomingCitationCount) 件")
-                statChip("person.2.fill", "引用元 \(network.uniqueCiterCount) 論文")
+                statChip("doc.text.fill", String(localized: "自著 \(network.ownIds.count) 本"))
+                statChip("quote.opening", String(localized: "被引用 \(network.incomingCitationCount) 件"))
+                statChip("person.2.fill", String(localized: "引用元 \(network.uniqueCiterCount) 論文"))
                 if network.edges.count < network.totalIncomingCount {
-                    statChip("eye", "表示は上位\(network.edges.count)件")
+                    statChip("eye", String(localized: "表示は上位\(network.edges.count)件"))
                 }
             }
         }

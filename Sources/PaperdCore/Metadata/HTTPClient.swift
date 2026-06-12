@@ -54,7 +54,7 @@ public enum HTTPError: Error, CustomStringConvertible {
     public var description: String {
         switch self {
         case .statusCode(let code, _, _): return "HTTP \(code)"
-        case .invalidResponse: return "不正なHTTPレスポンス"
+        case .invalidResponse: return "Invalid HTTP response"
         }
     }
 

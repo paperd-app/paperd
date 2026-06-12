@@ -1,33 +1,33 @@
 ---
 name: paperd-research
-description: paperd文献ライブラリとWebを横断するDeepResearch風の文献調査。テーマを分解してライブラリ内検索とWeb調査を並列実行し、未所持の重要論文をユーザ承認のうえでライブラリに追加、調査メモをノートに保存する。「〜について文献調査して」「サーベイして」「関連研究を調べて」などで使う。
+description: DeepResearch-style literature survey across the paperd library and the web. Decomposes a topic, runs library search and web research in parallel, adds important missing papers to the library with user approval, and saves survey notes. Use for requests like "survey the literature on ...", "do a literature review", or "find related work" (users may phrase these in any language).
 version: 1
 ---
 
-# paperd 文献調査ワークフロー
+# paperd Literature Survey Workflow
 
-paperd MCPサーバ（search_papers / get_fulltext / get_paper_metadata / add_paper / add_note / get_bibtex）と
-Web検索を組み合わせ、ユーザのライブラリを核とした文献調査を行う。
+Combine the paperd MCP server (search_papers / get_fulltext / get_paper_metadata / add_paper / add_note / get_bibtex)
+with web search to conduct a literature survey centered on the user's library.
 
-## 手順
+## Steps
 
-1. **テーマの分解**: 調査テーマを2〜4個のサブトピックに分解する。曖昧なら最初に1問だけ確認する。
-2. **ライブラリを先に検索**: 各サブトピックで `search_papers` を実行し、既読資産を把握する。
-   semantic検索なので日本語クエリでも英語論文に当たる。ヒットした重要論文は `get_fulltext`
-   （section指定推奨）で内容を確認する。
-3. **Web調査を並列実行**: サブトピックごとにサブエージェント（Task）を並列起動し、
-   最新動向・主要論文（タイトル・著者・年・DOI/arXiv ID・要旨）を収集する。
-4. **ライブラリとの突き合わせ**: Web側で見つけた論文がライブラリに既にあるかを
-   `search_papers`（タイトルで検索）で確認し、未所持リストを作る。
-5. **取り込み提案（重要: 無断でaddしない）**: 未所持のうち重要度上位（目安3〜10本）を
-   理由付きでユーザに提示し、**承認されたものだけ** `add_paper`（doi / arxiv_id優先）で追加する。
-   PDF取得・変換・索引化はアプリ側で非同期に進む。
-6. **調査メモの保存**: 調査結果のサマリ（サブトピック別の知見・主要文献リスト・未解決の問い）を
-   まとめ、中心となる論文があれば `add_note` でその論文のノートに保存する
-   （適切な対象がなければチャット出力のみでよい）。
+1. **Decompose the topic**: Break the survey topic into 2-4 subtopics. If the topic is ambiguous, ask exactly one clarifying question first.
+2. **Search the library first**: Run `search_papers` for each subtopic to map out what the user already has.
+   The search is semantic, so queries in any language can match English papers. For important hits, inspect
+   their content with `get_fulltext` (preferably with a section specified).
+3. **Run web research in parallel**: Launch sub-agents (Task) in parallel, one per subtopic, to collect
+   recent developments and key papers (title, authors, year, DOI / arXiv ID, abstract).
+4. **Cross-check against the library**: For each paper found on the web, check whether it is already in the
+   library via `search_papers` (search by title), and build a list of papers not yet owned.
+5. **Propose additions (important: never add without approval)**: Present the top missing papers
+   (roughly 3-10) to the user with reasons, and add **only the approved ones** with `add_paper`
+   (prefer doi / arxiv_id). PDF download, conversion, and indexing proceed asynchronously on the app side.
+6. **Save survey notes**: Compile a summary of the survey (findings per subtopic, key reference list,
+   open questions) and, if there is a central paper, save it to that paper's notes with `add_note`
+   (if no suitable target exists, chat output alone is fine).
 
-## 規約
+## Rules
 
-- ライブラリへの追加は必ずユーザの承認を経る（ライブラリはユーザの資産。汚さない）
-- 引用が必要な場面では `get_bibtex` を使う（手書きしない）
-- ライブラリ内の論文を引用・要約するときは get_fulltext の内容に基づく（憶測で内容を語らない）
+- Additions to the library always require the user's approval (the library is the user's asset; do not pollute it)
+- When citations are needed, use `get_bibtex` (do not hand-write them)
+- When citing or summarizing papers in the library, base it on `get_fulltext` content (do not speculate about their contents)

@@ -52,12 +52,12 @@ func makeRunner() -> JobRunner {
             }
             throw WorkerClient.WorkerAPIError(
                 code: "MODEL_NOT_READY",
-                message: "稼働中のワーカーが古いバージョンです。PAPERD_WORKER_DIRを設定すると自動で入れ替えます",
+                message: "The running worker is an outdated version. Set PAPERD_WORKER_DIR to replace it automatically",
                 statusCode: 0)
         }
         throw WorkerClient.WorkerAPIError(
             code: "MODEL_NOT_READY",
-            message: "ワーカー未起動。PAPERD_WORKER_DIRを設定するか、先にワーカーを起動してください",
+            message: "Worker is not running. Set PAPERD_WORKER_DIR or start the worker first",
             statusCode: 0)
     }
     let pipeline = IngestPipeline(store: store, queue: queue, executors: executors)
@@ -81,35 +81,35 @@ case "papers":
     }
 
 case "add":
-    guard arguments.count >= 2 else { fail("add <arXiv ID | DOI | URL | PDFパス | フォルダ>") }
+    guard arguments.count >= 2 else { fail("add <arXiv ID | DOI | URL | PDF path | folder>") }
     let input = (arguments[1] as NSString).expandingTildeInPath
     var isDirectory: ObjCBool = false
     if FileManager.default.fileExists(atPath: input, isDirectory: &isDirectory),
        isDirectory.boolValue || input.lowercased().hasSuffix(".pdf") {
         // フォルダは再帰走査して一括投入（→ docs/09 7節）
         let pdfs = PDFImportScanner.pdfs(in: [URL(fileURLWithPath: input)])
-        guard !pdfs.isEmpty else { fail("PDFが見つかりません: \(input)") }
+        guard !pdfs.isEmpty else { fail("no PDFs found: \(input)") }
         for pdf in pdfs {
             try queue.enqueue(kind: .ingest, payload: ["pdf_path": pdf.path], origin: .app)
         }
-        print("queued: \(pdfs.count)件のPDF")
+        print("queued: \(pdfs.count) PDF(s)")
     } else if PaperIdentifier.parse(arguments[1]) != nil {
         let job = try queue.enqueue(kind: .ingest, payload: ["input": arguments[1]], origin: .app)
         print("queued: \(job.id)")
     } else {
-        fail("入力を解釈できません: \(arguments[1])")
+        fail("cannot parse input: \(arguments[1])")
     }
 
 case "markdown":
     // paper.mdのブロック分解結果を確認（変換ミス調査用 → docs/09 4節 Markdownタブと同じパーサ）
-    guard arguments.count >= 2 else { fail("markdown <paper-id（前方一致可）>") }
+    guard arguments.count >= 2 else { fail("markdown <paper-id (prefix match allowed)>") }
     let prefix = arguments[1]
     guard let paper = try store.allPapers().first(where: { $0.id.hasPrefix(prefix) }) else {
-        fail("paper-id \(prefix) に一致する論文がありません")
+        fail("no paper matches paper-id \(prefix)")
     }
     guard let data = FileManager.default.contents(atPath: store.layout.markdownPath(paper.id).path),
           let markdown = String(data: data, encoding: .utf8)
-    else { fail("paper.mdがありません") }
+    else { fail("paper.md not found") }
     let blocks = MarkdownBlockParser.parse(markdown)
     var counts: [String: Int] = [:]
     for block in blocks {
@@ -130,8 +130,8 @@ case "markdown":
         switch block {
         case .heading(let level, let text): print("H\(level): \(text.prefix(70))")
         case .paragraph(let text): print("P:  \(text.prefix(70))")
-        case .list(let items, _): print("L:  \(items.count)項目: \(items.first?.prefix(50) ?? "")")
-        case .table(let header, let rows): print("T:  \(header.count)列 × \(rows.count)行: \(header.joined(separator: " | ").prefix(60))")
+        case .list(let items, _): print("L:  \(items.count) items: \(items.first?.prefix(50) ?? "")")
+        case .table(let header, let rows): print("T:  \(header.count) cols × \(rows.count) rows: \(header.joined(separator: " | ").prefix(60))")
         case .codeBlock: print("C:  (code)")
         case .imagePlaceholder: print("IMG")
         case .horizontalRule: print("---")
@@ -141,32 +141,32 @@ case "markdown":
 case "resolve":
     // pdf_only論文の再解決（手動解決UI相当 → docs/04 4節）。
     // 既存paper行を保持したままローカルPDF解決パイプラインを再実行する
-    guard arguments.count >= 2 else { fail("resolve <paper-id（前方一致可）>") }
+    guard arguments.count >= 2 else { fail("resolve <paper-id (prefix match allowed)>") }
     let prefix = arguments[1]
     let papers = try store.allPapers().filter { $0.id.hasPrefix(prefix) }
     guard papers.count == 1, let paper = papers.first else {
-        fail("paper-id \(prefix) に一致する論文が\(papers.isEmpty ? "ありません" : "複数あります")")
+        fail("\(papers.isEmpty ? "no papers match" : "multiple papers match") paper-id \(prefix)")
     }
     let pdfPath = store.layout.pdfPath(paper.id).path
     guard FileManager.default.fileExists(atPath: pdfPath) else {
-        fail("paper.pdfがありません: \(pdfPath)")
+        fail("paper.pdf not found: \(pdfPath)")
     }
     let job = try queue.enqueue(
         kind: .ingest, paperId: paper.id, payload: ["pdf_path": pdfPath], origin: .app)
-    print("queued: \(job.id)（\(paper.title.prefix(50))の再解決）")
+    print("queued: \(job.id) (re-resolving \(paper.title.prefix(50)))")
 
 case "attach":
     // PDF未取得の論文へPDFを添付し、convert以降を再開する（→ docs/04 6節）
-    guard arguments.count >= 3 else { fail("attach <paper-id（前方一致可）> <PDFパス>") }
+    guard arguments.count >= 3 else { fail("attach <paper-id (prefix match allowed)> <PDF path>") }
     let prefix = arguments[1]
     let pdfPath = (arguments[2] as NSString).expandingTildeInPath
     guard let paper = try store.allPapers().first(where: { $0.id.hasPrefix(prefix) }) else {
-        fail("paper-id \(prefix) に一致する論文がありません")
+        fail("no paper matches paper-id \(prefix)")
     }
-    guard FileManager.default.fileExists(atPath: pdfPath) else { fail("PDFがありません: \(pdfPath)") }
+    guard FileManager.default.fileExists(atPath: pdfPath) else { fail("PDF not found: \(pdfPath)") }
     try store.attachPDF(paperId: paper.id, from: URL(fileURLWithPath: pdfPath))
     let job = try queue.enqueue(kind: .ingest, paperId: paper.id, payload: [:], origin: .app, completedStage: .fetch)
-    print("attached + queued: \(job.id)（\(paper.title.prefix(50))のconvert以降を再開）")
+    print("attached + queued: \(job.id) (resuming from convert for \(paper.title.prefix(50)))")
 
 case "fix-titles":
     // 既存データのタイトル・誌名マークアップを一括修復（→ docs/04 3節）
@@ -201,20 +201,20 @@ case "fix-titles":
         }
         fixed += 1
         if before != cleanedTitle {
-            print("  修復: \(before.prefix(60))")
+            print("  fixed: \(before.prefix(60))")
             print("    → \(cleanedTitle.prefix(60))")
         }
     }
-    print("fix-titles: \(fixed)件を修復しました")
+    print("fix-titles: fixed \(fixed) paper(s)")
 
 case "flag":
     // お気に入り/自著フラグのトグル（→ docs/09 2.2節）
     guard arguments.count >= 3, ["favorite", "own"].contains(arguments[2]) else {
-        fail("flag <paper-id（前方一致可）> <favorite|own>")
+        fail("flag <paper-id (prefix match allowed)> <favorite|own>")
     }
     let prefix = arguments[1]
     guard let paper = try store.allPapers().first(where: { $0.id.hasPrefix(prefix) }) else {
-        fail("paper-id \(prefix) に一致する論文がありません")
+        fail("no paper matches paper-id \(prefix)")
     }
     if arguments[2] == "favorite" {
         try store.setFavorite(paper.id, !paper.isFavorite)
@@ -226,24 +226,24 @@ case "flag":
 
 case "delete":
     // 論文の削除（ディレクトリごとゴミ箱へ → docs/03 6節）
-    guard arguments.count >= 2 else { fail("delete <paper-id（前方一致可）>") }
+    guard arguments.count >= 2 else { fail("delete <paper-id (prefix match allowed)>") }
     let prefix = arguments[1]
     let matches = try store.allPapers().filter { $0.id.hasPrefix(prefix) }
     guard matches.count == 1, let paper = matches.first else {
-        fail("paper-id \(prefix) に一致する論文が\(matches.isEmpty ? "ありません" : "複数あります")")
+        fail("\(matches.isEmpty ? "no papers match" : "multiple papers match") paper-id \(prefix)")
     }
     try store.deletePaper(id: paper.id)
-    print("deleted: \(paper.id.prefix(8)) \(paper.title.prefix(60))（フォルダはゴミ箱へ）")
+    print("deleted: \(paper.id.prefix(8)) \(paper.title.prefix(60)) (folder moved to Trash)")
 
 case "reconvert":
     // 高精度再変換（force_ocr + formula_enrichment → docs/05 5.1節）
-    guard arguments.count >= 2 else { fail("reconvert <paper-id（前方一致可）>") }
+    guard arguments.count >= 2 else { fail("reconvert <paper-id (prefix match allowed)>") }
     let prefix = arguments[1]
     guard let paper = try store.allPapers().first(where: { $0.id.hasPrefix(prefix) }) else {
-        fail("paper-id \(prefix) に一致する論文がありません")
+        fail("no paper matches paper-id \(prefix)")
     }
     let job = try queue.enqueue(kind: .reconvert, paperId: paper.id, payload: [:], origin: .app)
-    print("queued: \(job.id)（\(paper.title.prefix(50))の高精度再変換）")
+    print("queued: \(job.id) (high-accuracy reconversion of \(paper.title.prefix(50)))")
 
 case "retry-failed":
     let failed = try queue.jobs(status: .failed)
@@ -251,7 +251,7 @@ case "retry-failed":
         try queue.retry(job.id)
         print("requeued: \(job.id.prefix(8)) \(job.kind)")
     }
-    if failed.isEmpty { print("失敗ジョブはありません") }
+    if failed.isEmpty { print("no failed jobs") }
 
 case "process":
     let runner = makeRunner()
@@ -278,18 +278,18 @@ case "search":
     let semaphore = DispatchSemaphore(value: 0)
     Task {
         let embedder: QueryEmbedder? = WorkerLock.reusableClient()
-        print(embedder != nil ? "[hybrid: FTS5 + semantic]" : "[keyword only: ワーカー未起動]")
+        print(embedder != nil ? "[hybrid: FTS5 + semantic]" : "[keyword only: worker not running]")
         do {
             let search = HybridSearch(db: store.db)
             let (results, _) = try await search.search(query: query, topK: 10, embedder: embedder)
             for r in results {
                 var strength = ""
-                if let s = r.semanticScore { strength += " 意味\(Int(s * 100))%" }
+                if let s = r.semanticScore { strength += " sem\(Int(s * 100))%" }
                 if let k = r.keywordRank { strength += " kw#\(k)" }
                 print("\(String(format: "%.4f", r.score))  [\(r.matchType.rawValue)\(strength)]\t\(r.title.prefix(50))\t§ \(r.sectionPath ?? "-")")
                 print("        \(r.chunkText.replacingOccurrences(of: "\n", with: " ").prefix(120))")
             }
-            if results.isEmpty { print("ヒットなし") }
+            if results.isEmpty { print("no results") }
         } catch {
             print("error: \(error)")
         }
@@ -298,5 +298,5 @@ case "search":
     semaphore.wait()
 
 default:
-    fail("未知のコマンド: \(command)")
+    fail("unknown command: \(command)")
 }

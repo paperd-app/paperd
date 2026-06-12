@@ -1,94 +1,96 @@
 # paperd
 
-## インストール
+## Installation
 
 ```sh
-brew install --cask paperd-app/paperd/paperd   # 推奨（uvも自動で入ります）
+brew install --cask paperd-app/paperd/paperd   # recommended (installs uv automatically)
 ```
 
-または [GitHub Releases](https://github.com/paperd-app/paperd/releases) からzipを直接ダウンロード。
-初回起動後、設定 > ワーカー から「環境構築」を実行してください（数分・2〜3GB）。
+Or download the zip directly from [GitHub Releases](https://github.com/paperd-app/paperd/releases).
+After the first launch, run "Set up environment" in Settings > Worker (takes a few minutes, 2–3 GB).
 
-## ライセンス
+## License
 
-[FSL-1.1-Apache-2.0](LICENSE.md)（Functional Source License）。
-個人利用・研究・教育・社内利用は自由です。競合する商用製品としての再配布のみ制限され、
-各リリースは公開から2年でApache 2.0に自動転換されます。
+[FSL-1.1-Apache-2.0](LICENSE.md) (Functional Source License).
+Personal, research, educational, and internal use are all free. Only redistribution as a
+competing commercial product is restricted, and each release automatically converts to
+Apache 2.0 two years after publication.
 
-学術研究向け論文管理ソフトウェア（設計書: [docs/](docs/00-overview.md)）の実装。
+paperd is a reference-management app for academic research (design docs: [docs/](docs/00-overview.md), in Japanese).
 
-ローカルAIによる全文Semantic検索とMCP経由でのAI連携を中核とするmacOSネイティブアプリ。
-ファイルが正本・SQLiteは再構築可能なインデックス、という設計原則に従う。
+A macOS-native app built around local-AI full-text semantic search and AI integration via MCP.
+It follows the design principle that files are the source of truth and SQLite is a rebuildable index.
 
-## 構成
+## Layout
 
 ```
-Package.swift             # SwiftPM（Swift 6.2 / macOS 14+）
+Package.swift             # SwiftPM (Swift 6.2 / macOS 14+)
 Sources/
-  PaperdCore/             # 共有ロジック（アプリとMCPがリンク → docs/01）
-    Database/             #   GRDBスキーマv1・マイグレーション（→ docs/02）
-    Library/              #   ライブラリレイアウト・meta.json・再構築（→ docs/03）
-    Bibtex/               #   bibtex動的生成・citation key（→ docs/02 2節）
-    Metadata/             #   arXiv / Crossref / S2 / OpenAlex クライアントと解決順序（→ docs/04 3節）
-    Chunking/             #   DoclingDocumentパース・セクション尊重チャンキング（→ docs/06 2節）
-    Search/               #   FTS5 + ベクトルKNN + RRFハイブリッド検索（→ docs/06 4節）
-    Jobs/                 #   jobsキュー・指数バックオフ（→ docs/04 7節）
-    Ingest/               #   6ステージ取り込みパイプライン・JobRunner actor（→ docs/04）
-    Worker/               #   PythonワーカーHTTPクライアント・worker.lock（→ docs/05, 01 3節）
-  PaperdMCPKit/           # MCPサーバロジック（stdio JSON-RPC自前実装 + 5ツール → docs/07）
+  PaperdCore/             # Shared logic (linked by both the app and MCP → docs/01)
+    Database/             #   GRDB schema & migrations (→ docs/02)
+    Library/              #   Library layout, meta.json, index rebuild (→ docs/03)
+    Bibtex/               #   BibTeX generation, citation keys (→ docs/02 §2)
+    Metadata/             #   arXiv / Crossref / S2 / OpenAlex clients & resolution order (→ docs/04 §3)
+    Chunking/             #   DoclingDocument parsing, section-aware chunking (→ docs/06 §2)
+    Search/               #   FTS5 + vector KNN + RRF hybrid search (→ docs/06 §4)
+    Jobs/                 #   Job queue with exponential backoff (→ docs/04 §7)
+    Ingest/               #   6-stage ingest pipeline, JobRunner actor (→ docs/04)
+    Worker/               #   Python worker HTTP client, worker.lock (→ docs/05, 01 §3)
+  PaperdMCPKit/           # MCP server logic (hand-rolled stdio JSON-RPC + 7 tools → docs/07)
   PaperdMCP/              # paperd-mcp CLI
-  Paperd/                 # SwiftUIアプリ（最小UI: 3ペイン・リスト・BibTeXコピー・FTS検索）
-Tests/PaperdTests/        # Swiftテスト（Swift Testing、97件）
-worker/                   # Pythonワーカー（FastAPI / Docling / bge-m3 → docs/05）
-docs/                     # 設計書
+  Paperd/                 # SwiftUI app (3-pane UI, search, citation graph, settings)
+Tests/PaperdTests/        # Swift tests (Swift Testing)
+worker/                   # Python worker (FastAPI / Docling / bge-m3 → docs/05)
+skills/                   # Bundled Claude skills (installable from Settings)
+docs/                     # Design docs (Japanese)
 ```
 
-## ビルドとテスト
+## Build & test
 
-### Swift（PaperdCore / MCP / アプリ）
+### Swift (PaperdCore / MCP / app)
 
 ```sh
-swift build               # 全ターゲット
-swift test                # テスト一式（Swift Testing）
-scripts/make-app.sh --open  # アプリの起動（推奨: .appバンドル生成 + 起動）
-swift run Paperd          # 直接起動も可（非バンドル実行のため一部のOS統合が不完全）
+swift build               # all targets
+swift test                # full test suite (Swift Testing)
+scripts/make-app.sh --open  # run the app (recommended: builds and opens the .app bundle)
+swift run Paperd          # direct run also works (some OS integration is incomplete without a bundle)
 ```
 
-> **アプリの動作確認は `scripts/make-app.sh --open` を推奨**。`swift run` はバンドルなしの
-> 素のプロセスとして起動するため、macOSのアプリ統合が不完全になる（キーボードフォーカスが
-> 取れない・URLスキーム未登録・Dock表示なし等）。フォーカス問題はコード側でも回避済みだが、
-> バンドル実行なら `paperd://` スキームやMCPスニペットの実パス（Contents/Helpers/paperd-mcp）
-> も含めて設計書どおりの構成で確認できる。
+> **Use `scripts/make-app.sh --open` to test the app.** `swift run` launches a bare,
+> unbundled process, so macOS app integration is incomplete (keyboard focus issues, no
+> URL-scheme registration, no Dock presence). The focus problem is worked around in code,
+> but a bundled run also exercises the `paperd://` scheme and the real MCP helper path
+> (Contents/Helpers/paperd-mcp) exactly as designed.
 
-要Xcode（Swift Testingを使うため。Command Line Toolsのみでは `swift test` 不可）。
+Xcode is required (Swift Testing is unavailable with Command Line Tools alone, so `swift test` won't run).
 
-### Pythonワーカー
+### Python worker
 
 ```sh
 cd worker
-uv sync                   # 開発用（軽量。FastAPI + pytest のみ）
-uv run pytest             # テスト（18件）
-uv sync --extra ml        # 実運用（Docling + sentence-transformers。2〜3GB）
-uv run paperd-worker --token SECRET --port 0   # 起動（{"port": N} を標準出力に通知）
+uv sync                   # development (lightweight: FastAPI + pytest only)
+uv run pytest             # tests
+uv sync --extra ml        # production (Docling + sentence-transformers, 2–3 GB)
+uv run paperd-worker --token SECRET --port 0   # start ({"port": N} is printed to stdout)
 ```
 
-### MCPサーバ
+### MCP server
 
 ```sh
 swift build
 echo '{"jsonrpc":"2.0","id":0,"method":"initialize","params":{}}' | .build/debug/paperd-mcp
 ```
 
-環境変数:
+Environment variables:
 
-| 変数 | 意味 |
+| Variable | Meaning |
 |---|---|
-| `PAPERD_LIBRARY` | ライブラリの場所（既定 `~/PaperdLibrary`） |
-| `PAPERD_WORKER_DIR` | `worker/` の場所（semantic検索用ワーカーのオンデマンド起動） |
-| `PAPERD_MAILTO` | Crossref / OpenAlex politeプール用メールアドレス |
-| `PAPERD_S2_API_KEY` | Semantic Scholar APIキー（任意） |
+| `PAPERD_LIBRARY` | Library location (default `~/PaperdLibrary`) |
+| `PAPERD_WORKER_DIR` | Location of `worker/` (for on-demand worker startup for semantic search) |
+| `PAPERD_MAILTO` | Email for the Crossref / OpenAlex polite pools |
+| `PAPERD_S2_API_KEY` | Semantic Scholar API key (optional) |
 
-Claude Code への登録例（`.mcp.json`）:
+Example registration for Claude Code (`.mcp.json`):
 
 ```json
 {
@@ -102,78 +104,92 @@ Claude Code への登録例（`.mcp.json`）:
 }
 ```
 
-## 実装状況（→ docs/10 のマイルストーン）
+## Localization
 
-| | 範囲 | 状態 |
+The app UI is localized (English / Japanese, following the system language; base language is
+Japanese → docs/09 §10). Strings in PaperdCore, the CLIs, MCP tool definitions/outputs, and
+the bundled skills are English-only by design: core diagnostics are persisted to the DB, and
+MCP output is read by AI clients.
+
+## Implementation status (→ milestones in docs/10)
+
+| | Scope | Status |
 |---|---|---|
-| M1 基盤 | スキーマv1 / meta.json入出力 / インデックス再構築 / 最小UI | ✅ |
-| M2 取り込み | メタデータ解決4ソース / jobsキュー / 6ステージパイプライン / 重複検出（DOI・arXiv・pdf_hash） / ローカルPDF解決（convert先行 + Crossref bibliographic検索） / JobRunner | ✅ |
-| M3 AI処理 | ワーカーHTTP API / Docling・bge-m3エンジン（遅延ロード） / チャンキング | ✅ |
-| M4 検索 | ハイブリッド検索（FTS5 + KNN + RRF） / 検索UI（ワーカー起動時はsemantic併用） / PDFビューア | ✅ |
-| M5 MCP | paperd-mcp 6ツール（search / bibtex / fulltext / metadata / add_paper / **apply_fulltext_patches**） / stdio JSON-RPC | ✅ |
-| 変換品質 | 文字化け検知ヒューリスティック（conversion_warningsバッジ） / 高精度再変換（force_ocr + formula_enrichment、reconvertジョブ） / **MCP経由のLLM修正ワークフロー**（paper.corrected.mdオーバーレイ + 履歴 + reindex自動投入 → docs/05 4.1・5節, docs/07 2.6節） | ✅ |
-| M6 周辺 | 引用グラフ（refetch_citationsジョブ / stub論文 / TTL / エゴネットワーク表示 / stub昇格） / **Markdownタブ（変換結果の確認 — AIが読む本文の変換ミス検出手段 → docs/09 4節）** / ノートUI / 取り込みUI（＋ダイアログ・PDFドロップ） / ジョブ進捗UI / 設定画面（MCPスニペット・ワーカーセットアップ） / **お気に入り・自著論文フラグ + 自著被引用ネットワーク（リッチ表示 → docs/09 4.1節）** / **ワーカー自動起動 + ステータスバーインジケータ + MCP登録導線・最終アクセス表示（→ docs/07 6節, docs/09 9節）** / **配布準備: ワーカー同梱+自動展開・uv探索（GUIのPATH問題対応）・release.sh（署名/notarization）・インデックス再構築メニュー・終了時ワーカー停止・実プロセスMCPテスト** | ✅ |
+| M1 Foundation | Schema v1 / meta.json I/O / index rebuild / minimal UI | ✅ |
+| M2 Ingest | 4-source metadata resolution / job queue / 6-stage pipeline / duplicate detection (DOI, arXiv, pdf_hash) / local-PDF resolution (convert-first + Crossref bibliographic search) / JobRunner | ✅ |
+| M3 AI processing | Worker HTTP API / Docling & bge-m3 engines (lazy load) / chunking | ✅ |
+| M4 Search | Hybrid search (FTS5 + KNN + RRF) / search UI (semantic when the worker is up) / PDF viewer | ✅ |
+| M5 MCP | paperd-mcp 7 tools (search / bibtex / fulltext / metadata / add_paper / add_note / **apply_fulltext_patches**) / stdio JSON-RPC | ✅ |
+| Conversion quality | Mojibake-detection heuristics (conversion_warnings badge) / high-accuracy reconversion (force_ocr + formula_enrichment, reconvert job) / **LLM correction workflow via MCP** (paper.corrected.md overlay + history + automatic reindex → docs/05 §4.1, §5; docs/07 §2.6) | ✅ |
+| M6 Periphery | Citation graph (refetch_citations job / stub papers / TTL / ego-network view / stub promotion) / **Markdown tab (conversion review — the text AI actually reads → docs/09 §4)** / notes UI / ingest UI (+ dialog, PDF drop, file/folder picker) / job progress UI / settings (MCP snippet, worker setup) / **favorites & own-paper flags + own-papers citation network (rich view → docs/09 §4.1)** / **worker auto-start + status-bar indicators + MCP onboarding & last-access display (→ docs/07 §6, docs/09 §9)** / **distribution prep: bundled worker + auto-deploy, uv discovery (GUI PATH issue), release.sh (signing/notarization), index-rebuild menu, worker stop on quit, process-level MCP test** | ✅ |
 
-### v1の既知の残課題
+### Known remaining work for v1
 
-- 初回セットアップウィザードの磨き込み（現状は設定画面の「ワーカー」タブから手動で `uv sync` / 起動）
-- 検索ヒットからのPDFページジャンプ（provenance近似 → docs/09 5節。Markdownタブへのジャンプは実装済み）
-- 引用グラフの被引用数によるノードサイズ反映（stub行にcitationCount列がないため）
-- 手動解決UIのCrossref候補リスト表示（DOI/arXiv ID直接入力は実装済み）
-- コレクションのドラッグ&ドロップ・階層編集（作成/削除/リネーム/所属トグル/フィルタは実装済み）
-- 論文リストの絞り込みトークン（年範囲・status・venue）
-- JobRunnerのネットワーク系ジョブ並列化（現状は全直列）
+- Polishing the first-run setup wizard (currently manual `uv sync` / start from the Settings "Worker" tab)
+- Jumping from search hits to the PDF page (provenance approximation → docs/09 §5; jumping to the Markdown tab is implemented)
+- Node sizing by citation count in the citation graph (stub rows lack a citationCount column)
+- Crossref candidate list in the manual-resolution UI (direct DOI/arXiv ID input is implemented)
+- Filter tokens for the paper list (year range, status, venue)
+- Parallelizing network-bound jobs in JobRunner (currently fully serial)
 
-### 設計書からの主な乖離（実装上の判断）
+### Main deviations from the design docs (implementation decisions)
 
-1. **sqlite-vec → 純Swift KNN**: システムSQLiteはSQLite拡張をロードできないため、
-   `vec_chunks` を通常テーブル（float32 BLOB）とし `VectorStore` がブルートフォースKNNを行う。
-   インターフェース（`rowid = chunks.id`）は設計書と同一で、sqlite-vec導入時はこの型のみ差し替え。
-2. **MCP SDKは使わず最初からstdio JSON-RPC自前実装**（docs/07 1節が許容する最小構成。
-   tools/list と tools/call のみ）。
-3. **チャンクのトークン数はbge-m3トークナイザでなく近似**（単語数とchars/4の大きい方）。
-4. **JobRunnerのジョブ実行はv1では全直列**（設計書はネットワーク系2〜3並列。並列化は今後）。
-5. **コレクション機能は実装後に廃止**（2026-06、docs/02の設計変更メモ）。お気に入り・自著論文フラグに置換。
-   既存のコレクションデータ（テーブル・collections.json）はマイグレーションv3で破棄される。
-6. **Supplementary PDFの交絡バグ（E2Eで発見・修正済み）**: 自分のDOIを持たない短い文書では
-   参考文献がID抽出窓（冒頭6000字）に入り、引用先のDOIで別論文として誤登録された。
-   ID抽出をReferences見出しより前に限定して修正（→ docs/04 4節）。
-7. **URL取り込みがID入りURL以外で失敗（E2Eで発見・修正済み）**: `.webpage`/`.directPDFURL` が
-   resolverのデッドエンドだった。citation_*メタタグ解決・直接PDFダウンロードを実装（→ docs/04 2節）。
-   あわせて、resolveが追記したpdf_urlを同一run内のfetchが読めない（Jobスナップショットのstale payload）
-   バグも修正。NeurIPS 2017のAttention論文URLで indexed まで実証。
-8. **MCPサーバが initialize 応答直後にSIGABRT（実クライアント接続で発見・修正済み）**:
-   stdioループの `synchronizeFile()`（fsync）がパイプ上で `NSFileHandleOperationException` を投げて即死し、
-   tools/list に応答できずツールが1つも登録されなかった。単発パイプのE2E（1リクエスト→1応答）では
-   応答後のクラッシュが見えず長期間潜伏。fflushのみに修正し、複数リクエストのセッションで回帰検証。
-9. **get_fulltext(section指定)が修正適用直後に旧本文を返す（実AI利用で発見・修正済み）**:
-   section経路はチャンク（reindexジョブ待ち）由来のため、apply_fulltext_patches直後やアプリ非起動時に
-   未修正テキストが返っていた。修正版がある論文は有効Markdownからの見出し抽出に切替（→ docs/07 2.3節）。
-10. **重複reindexジョブで負荷事故（実AI利用で発見・修正済み）**: MCPの修正パッチを5バッチに
-   分けて適用 → reindexが5本積まれ、同一論文のembedding再計算が並行実行されてマシン全体が
-   重くなった。同一kind+論文のqueued/running中は投入しない重複排除を導入（→ docs/04 7節）。
-11. **ハブ論文の引用グラフでフリーズ（E2Eで発見・修正済み）**: 次数1,600超の古典論文で
-   表示ノードが爆発（2ホップで最大8万ノード）し、O(n²)レイアウトのUIスレッド同期実行で
-   フリーズした。表示上限（1ホップ150・全体400 + 「+N件省略」表示）と漸進レイアウトで修正（→ docs/08 6節）。
+1. **sqlite-vec → pure-Swift KNN**: the system SQLite cannot load extensions, so
+   `vec_chunks` is a plain table (float32 BLOB) and `VectorStore` does brute-force KNN.
+   The interface (`rowid = chunks.id`) matches the design doc, so adopting sqlite-vec later
+   only requires swapping this type.
+2. **No MCP SDK — hand-rolled stdio JSON-RPC from the start** (the minimal configuration
+   permitted by docs/07 §1: tools/list and tools/call only).
+3. **Chunk token counts are approximate** (max of word count and chars/4), not the bge-m3 tokenizer.
+4. **JobRunner job execution is fully serial in v1** (the design doc allows 2–3 parallel network jobs; parallelization is future work).
+5. **The collections feature was removed after implementation** (2026-06, see the design-change
+   note in docs/02), replaced by favorite/own-paper flags. Existing collection data (tables,
+   collections.json) is dropped by migration v3.
+6. **Supplementary-PDF confound bug (found and fixed in E2E)**: for short documents without
+   their own DOI, the reference list fell inside the ID-extraction window (first 6,000 chars)
+   and the document was mis-registered under a cited paper's DOI. Fixed by limiting ID
+   extraction to text before the References heading (→ docs/04 §4).
+7. **URL ingest failed for anything but ID-bearing URLs (found and fixed in E2E)**:
+   `.webpage`/`.directPDFURL` were dead ends in the resolver. Implemented citation_* meta-tag
+   resolution and direct PDF download (→ docs/04 §2). Also fixed a stale-payload bug where
+   a pdf_url written by resolve was invisible to fetch within the same run (stale Job snapshot).
+   Verified to `indexed` with the NeurIPS 2017 Attention paper URL.
+8. **MCP server SIGABRT right after the initialize response (found with a real client, fixed)**:
+   `synchronizeFile()` (fsync) in the stdio loop throws `NSFileHandleOperationException` on
+   pipes and killed the process before tools/list, so no tools were ever registered.
+   Single-shot pipe E2Es (one request → one response) never saw the post-response crash, so it
+   lurked for a long time. Fixed to fflush only; regression-tested with multi-request sessions.
+9. **get_fulltext(section:) returned stale text right after corrections (found in real AI use, fixed)**:
+   the section path served chunk-derived text (pending the reindex job), so uncorrected text
+   was returned right after apply_fulltext_patches or while the app wasn't running. For papers
+   with corrections, switched to heading-based extraction from the effective Markdown (→ docs/07 §2.3).
+10. **Load incident from duplicate reindex jobs (found in real AI use, fixed)**: applying MCP
+   correction patches in 5 batches queued 5 reindex jobs, and concurrent re-embedding of the
+   same paper bogged down the whole machine. Added deduplication that skips enqueueing while
+   a queued/running job of the same kind+paper exists (→ docs/04 §7).
+11. **Freeze on hub papers in the citation graph (found in E2E, fixed)**: a classic paper with
+   1,600+ degree exploded the displayed node count (up to ~80k nodes at 2 hops) and the O(n²)
+   layout ran synchronously on the UI thread. Fixed with display caps (150 first-hop, 400 total,
+   "+N omitted" badges) and incremental layout (→ docs/08 §6).
 
-### 動作確認済みのE2E経路（実環境・実APIで検証済み）
+### Verified E2E paths (real environment, real APIs)
 
-実PDF（J. Appl. Phys. 2023の10ページ論文）+ 実ワーカー（Docling + bge-m3）+ 実API（Crossref / S2 / OpenAlex）で以下を確認:
+Verified with a real PDF (a 10-page J. Appl. Phys. 2023 paper), a real worker (Docling + bge-m3), and real APIs (Crossref / S2 / OpenAlex):
 
-- **PDFドロップ → indexed**: ローカルPDF解決（Docling変換 → タイトル抽出 → Crossref bibliographic検索でDOI確定 → S2/OpenAlex補完）→ 35チャンクのembedding・インデックス化
-- **引用グラフ**: 取り込み完了時のrefetch_citations自動投入 → S2 + **OpenAlex補完マージ**（→ docs/08 1節）。実論文でS2の索引漏れ（被引用4/9件）をOpenAlexが補完して実勢9件に、出版社非公開だった参考文献46件もreferenced_worksから取得できることを確認
-- **検索**: 英語ハイブリッド（FTS5+semantic）および**日本語クエリ→英語論文の言語横断semantic検索**
-- **MCP**: `paperd-mcp` 経由の `search_papers`（日本語semantic）/ `get_bibtex`（完全な@articleエントリ）
-- **変換修正ワークフロー**: 実論文の文字化け（= が ¼ に化けた66箇所を検知）に対し、MCP `apply_fulltext_patches` でパッチ適用 → `paper.corrected.md` 作成（原本不変・履歴記録）→ reindexジョブ自動投入 → 修正後テキストがFTS検索にヒット・`conversion_warnings` バッジ更新まで一気通貫で確認
-- **高精度再変換（実Vision OCR）**: 同論文の ¼ 化け66箇所が `force_ocr`（ocrmac）で**全件回復**（x ¼ 0 : 52 → x = 0.52）。副作用のキリル同形字（PbTiO3→РЬТіОз等19字）は品質検知が捕捉し、MCP修正で仕上げ可能
-- `paperd-cli`（jobs / papers / add / attach / resolve / reconvert / markdown / delete / retry-failed / process / search）でヘッドレス運用可能
+- **PDF drop → indexed**: local-PDF resolution (Docling conversion → title extraction → Crossref bibliographic search to pin the DOI → S2/OpenAlex enrichment) → 35 chunks embedded and indexed
+- **Citation graph**: automatic refetch_citations on ingest completion → S2 + **OpenAlex supplement merge** (→ docs/08 §1). On a real paper, OpenAlex filled S2's indexing gaps (4/9 incoming citations → the true 9), and 46 references unavailable from the publisher were recovered from referenced_works
+- **Search**: English hybrid (FTS5 + semantic) and **cross-lingual semantic search (Japanese query → English papers)**
+- **MCP**: `search_papers` (Japanese semantic query) and `get_bibtex` (complete @article entry) via `paperd-mcp`
+- **Conversion-correction workflow**: against real mojibake (66 spots where = was garbled to ¼), applied patches via MCP `apply_fulltext_patches` → `paper.corrected.md` created (original untouched, history recorded) → reindex auto-queued → corrected text hits FTS search and the `conversion_warnings` badge updates, end to end
+- **High-accuracy reconversion (real Vision OCR)**: all 66 ¼-garbles in the same paper **fully recovered** with `force_ocr` (ocrmac) (x ¼ 0 : 52 → x = 0.52). The side effect of Cyrillic homoglyphs (PbTiO3→РЬТіОз etc., 19 chars) was caught by quality detection and is fixable via MCP corrections
+- Headless operation via `paperd-cli` (jobs / papers / add / attach / resolve / reconvert / markdown / delete / retry-failed / process / search)
 
-### E2Eで発見・修正した不具合
+### Bugs found and fixed via E2E
 
-1. ワーカー `/embed` が `async def` でブロッキング実行 → bge-m3初回ロード中（約3分）に全エンドポイント停止、`/convert` の202応答までタイムアウト。`anyio.to_thread` で修正 + 回帰テスト
-2. Swift側URLSessionの既定60秒タイムアウト → モデルのコールドロードに足りず600秒へ延長
-3. ワーカー再起動時のlockファイル競合（旧プロセスの遅延シャットダウンが新プロセスのlockを削除）→ pid所有者チェック付きunlinkに修正
-4. Doclingが論文タイトルを `title` でなく `section_header` として出力するケース → 見出しフォールバック付きタイトル抽出（`DoclingParser.titleCandidate`）
-5. S2の `"data": null`（出版社がreferences非公開の論文）をパースエラー扱い → 空リストとして処理
-6. PDFドロップ時、誌名ランニングヘッダをタイトルと誤認 → 無関係なエントリとして登録され、URL登録済みの同一論文（metadata_only）と紐づかない問題 → 解決チェーンを再設計（本文刷り込みDOI/arXiv IDの抽出を最優先・全大文字ヘッダの優先度低下・解決結果のタイトル検証・metadata_only行への自動合流・PDFタブのドロップによる明示添付 → docs/04 4節）
-7. ローカルPDFのCrossref書誌検索が**SSRNプレプリント版を出版版（Acta Materialia）より上位に返し**、@misc・abstract欠落・S2引用取得404・引用グラフstub行との二重登録が連鎖発生 → 僅差の出版版（journal-article / proceedings-article）を優先するレコード選択 + 解決後DOI重複時のstub吸収マージを実装（→ docs/04 4節）
+1. Worker `/embed` ran blocking inside `async def` → all endpoints stalled during the first bge-m3 load (~3 min), and even `/convert`'s 202 response timed out. Fixed with `anyio.to_thread` + regression test
+2. Swift URLSession default 60 s timeout was too short for the model cold load → extended to 600 s
+3. Lock-file race on worker restart (the old process's delayed shutdown deleted the new process's lock) → unlink now checks pid ownership
+4. Docling sometimes emits the paper title as `section_header` instead of `title` → title extraction with heading fallback (`DoclingParser.titleCandidate`)
+5. S2's `"data": null` (publisher withholds references) was treated as a parse error → handled as an empty list
+6. On PDF drop, a journal running header was mistaken for the title → registered as an unrelated entry that never merged with the same paper already registered by URL (metadata_only) → redesigned the resolution chain (prefer DOI/arXiv IDs printed in the body, demote all-caps headers, validate resolved titles, auto-merge into metadata_only rows, explicit attach via PDF-tab drop → docs/04 §4)
+7. Crossref bibliographic search for local PDFs **ranked an SSRN preprint above the published version (Acta Materialia)**, cascading into @misc entries, missing abstracts, S2 404s on citation fetch, and double registration with a citation-graph stub row → prefer near-tied published records (journal-article / proceedings-article) + absorb stubs on post-resolution DOI duplication (→ docs/04 §4)

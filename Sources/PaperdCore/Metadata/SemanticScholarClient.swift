@@ -32,7 +32,7 @@ public struct SemanticScholarClient: Sendable {
     public func paper(identifier: String, fields: String = "title,abstract,year,venue,externalIds,citationCount,authors") async throws -> PaperInfo {
         let encoded = identifier.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? identifier
         guard let url = URL(string: "\(baseURL)/paper/\(encoded)?fields=\(fields)") else {
-            throw MetadataError.network(source: "SemanticScholar", message: "不正なURL")
+            throw MetadataError.network(source: "SemanticScholar", message: "Invalid URL")
         }
         let response = try await http.send(HTTPRequest(url: url, headers: headers))
         if response.statusCode == 404 {
@@ -56,14 +56,14 @@ public struct SemanticScholarClient: Sendable {
     func edges(paperId: String, kind: String, key: String, limit: Int) async throws -> [PaperInfo] {
         let fields = "title,year,venue,externalIds,citationCount,authors"
         guard let url = URL(string: "\(baseURL)/paper/\(paperId)/\(kind)?fields=\(fields)&limit=\(min(limit, 1000))") else {
-            throw MetadataError.network(source: "SemanticScholar", message: "不正なURL")
+            throw MetadataError.network(source: "SemanticScholar", message: "Invalid URL")
         }
         let response = try await http.send(HTTPRequest(url: url, headers: headers))
         guard response.isSuccess else {
             throw MetadataError.network(source: "SemanticScholar", message: "HTTP \(response.statusCode)")
         }
         guard let json = try JSONSerialization.jsonObject(with: response.body) as? [String: Any] else {
-            throw MetadataError.parse(source: "SemanticScholar", message: "JSONの形式が不正")
+            throw MetadataError.parse(source: "SemanticScholar", message: "Malformed JSON response")
         }
         // 出版社がreferencesを非公開にしている論文では "data": null が返る → 空として扱う
         let items = json["data"] as? [[String: Any]] ?? []
@@ -75,14 +75,14 @@ public struct SemanticScholarClient: Sendable {
 
     static func parsePaper(data: Data) throws -> PaperInfo {
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            throw MetadataError.parse(source: "SemanticScholar", message: "JSONの形式が不正")
+            throw MetadataError.parse(source: "SemanticScholar", message: "Malformed JSON response")
         }
         return try paperInfo(from: json)
     }
 
     static func paperInfo(from json: [String: Any]) throws -> PaperInfo {
         guard let paperId = json["paperId"] as? String else {
-            throw MetadataError.parse(source: "SemanticScholar", message: "paperIdがありません")
+            throw MetadataError.parse(source: "SemanticScholar", message: "Missing paperId")
         }
         let external = json["externalIds"] as? [String: Any]
         var authors: [ResolvedMetadata.AuthorInfo] = []

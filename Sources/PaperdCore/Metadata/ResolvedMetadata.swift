@@ -111,9 +111,9 @@ public enum MetadataError: Error, Equatable, CustomStringConvertible {
 
     public var description: String {
         switch self {
-        case .notFound(let source, let id): return "\(source): \(id) が見つかりません"
-        case .network(let source, let message): return "\(source): ネットワークエラー (\(message))"
-        case .parse(let source, let message): return "\(source): レスポンス解析エラー (\(message))"
+        case .notFound(let source, let id): return "\(source): \(id) not found"
+        case .network(let source, let message): return "\(source): network error (\(message))"
+        case .parse(let source, let message): return "\(source): response parse error (\(message))"
         }
     }
 }

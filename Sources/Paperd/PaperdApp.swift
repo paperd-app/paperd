@@ -82,6 +82,8 @@ final class AppModel: ObservableObject {
         case unresolved = "書誌未解決"
         case failed = "失敗"
         var id: String { rawValue }
+        /// 表示名。rawValueは選択状態の同一性キーのため固定し、表示のみローカライズ（→ docs/09 10節）
+        var localizedName: String { String(localized: String.LocalizationValue(rawValue)) }
 
         /// ステータス絞り込みリストの対象status（nil = 対象外。一括削除のスコープ → docs/09 3節）
         var statusFilter: [PaperStatus]? {
@@ -105,6 +107,7 @@ final class AppModel: ObservableObject {
         case year = "年"
         case title = "タイトル"
         case firstAuthor = "第一著者"
+        var localizedName: String { String(localized: String.LocalizationValue(rawValue)) }
     }
 
     @Published var sidebarSelection: SidebarSelection = .smart(.all) {
@@ -132,6 +135,7 @@ final class AppModel: ObservableObject {
         case markdown = "Markdown"
         case notes = "ノート"
         case graph = "引用グラフ"
+        var localizedName: String { String(localized: String.LocalizationValue(rawValue)) }
     }
 
     @Published var detailTab: DetailTab = .info
@@ -271,13 +275,13 @@ final class AppModel: ObservableObject {
                 }
                 throw WorkerClient.WorkerAPIError(
                     code: "MODEL_NOT_READY",
-                    message: "稼働中のワーカーが古いバージョンです。設定画面から起動し直してください。",
+                    message: String(localized: "稼働中のワーカーが古いバージョンです。設定画面から起動し直してください。"),
                     statusCode: 0
                 )
             }
             throw WorkerClient.WorkerAPIError(
                 code: "MODEL_NOT_READY",
-                message: "Pythonワーカーが未起動です。設定画面からワーカーをセットアップ・起動してください。",
+                message: String(localized: "Pythonワーカーが未起動です。設定画面からワーカーをセットアップ・起動してください。"),
                 statusCode: 0
             )
         }
@@ -358,9 +362,9 @@ final class AppModel: ObservableObject {
     }
 
     var listTitle: String {
-        if searchResults != nil { return "検索結果" }
+        if searchResults != nil { return String(localized: "検索結果") }
         switch sidebarSelection {
-        case .smart(let list): return list.rawValue
+        case .smart(let list): return String(localized: String.LocalizationValue(list.rawValue))
         }
     }
 
@@ -422,7 +426,7 @@ final class AppModel: ObservableObject {
         guard let queue else { return }
         let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard PaperIdentifier.parse(trimmed) != nil else {
-            errorMessage = "入力を解釈できません: arXiv ID / DOI / URL を指定してください"
+            errorMessage = String(localized: "入力を解釈できません: arXiv ID / DOI / URL を指定してください")
             return
         }
         do {
@@ -441,7 +445,7 @@ final class AppModel: ObservableObject {
     func importPDFURLs(_ urls: [URL]) {
         let pdfs = PDFImportScanner.pdfs(in: urls)
         guard !pdfs.isEmpty else {
-            errorMessage = "PDFファイルが見つかりませんでした"
+            errorMessage = String(localized: "PDFファイルが見つかりませんでした")
             return
         }
         if pdfs.count >= 5 {
@@ -458,7 +462,7 @@ final class AppModel: ObservableObject {
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = true
         panel.allowedContentTypes = [.pdf]
-        panel.message = "取り込むPDFファイル、またはPDFを含むフォルダを選択してください（フォルダは再帰的に走査されます）"
+        panel.message = String(localized: "取り込むPDFファイル、またはPDFを含むフォルダを選択してください（フォルダは再帰的に走査されます）")
         guard panel.runModal() == .OK, !panel.urls.isEmpty else { return }
         importPDFURLs(panel.urls)
     }
@@ -504,7 +508,7 @@ final class AppModel: ObservableObject {
             reload()
             reloadJobs()
             sidebarSelection = .smart(.processing)
-            rebuildMessage = "書誌データベースを再構築しました。検索インデックス（\(enqueued)論文）はバックグラウンドで再計算されます。"
+            rebuildMessage = String(localized: "書誌データベースを再構築しました。検索インデックス（\(enqueued)論文）はバックグラウンドで再計算されます。")
         } catch {
             errorMessage = String(describing: error)
         }
@@ -589,7 +593,7 @@ final class AppModel: ObservableObject {
         } catch let error as IngestError {
             if case .duplicate(let existingId) = error,
                let existing = papers.first(where: { $0.id == existingId }) {
-                errorMessage = "このPDFは既に「\(existing.title.prefix(40))」として登録されています"
+                errorMessage = String(localized: "このPDFは既に「\(String(existing.title.prefix(40)))」として登録されています")
             } else {
                 errorMessage = error.description
             }
@@ -689,7 +693,7 @@ final class AppModel: ObservableObject {
         } else if let doi = PaperIdentifier.parseDOI(trimmed) ?? PaperIdentifier.extractDOI(from: trimmed) {
             payload["doi"] = doi
         } else {
-            errorMessage = "DOIまたはarXiv IDとして解釈できません: \(trimmed)"
+            errorMessage = String(localized: "DOIまたはarXiv IDとして解釈できません: \(trimmed)")
             return
         }
         do {
@@ -711,10 +715,10 @@ final class AppModel: ObservableObject {
             if papers.contains(where: { $0.id == id }) {
                 selectedPaperId = id
             } else {
-                errorMessage = "論文が見つかりません: \(id)"
+                errorMessage = String(localized: "論文が見つかりません: \(id)")
             }
         case nil:
-            errorMessage = "解釈できないURLです: \(url.absoluteString)"
+            errorMessage = String(localized: "解釈できないURLです: \(url.absoluteString)")
         }
     }
 
@@ -750,7 +754,7 @@ final class AppModel: ObservableObject {
         if let doi = paper.doi { payload["doi"] = doi }
         else if let arxivId = paper.arxivId { payload["arxiv_id"] = arxivId }
         else {
-            errorMessage = "この論文はDOI/arXiv IDを持たないため取り込めません"
+            errorMessage = String(localized: "この論文はDOI/arXiv IDを持たないため取り込めません")
             return
         }
         _ = try? queue.enqueue(kind: .ingest, paperId: nil, payload: payload, origin: .app)
@@ -824,9 +828,10 @@ final class AppModel: ObservableObject {
         guard let entry = MCPAccessLog().lastAccess(),
               let date = PaperdDates.date(from: entry.at) else { return nil }
         let formatter = RelativeDateTimeFormatter()
-        formatter.locale = Locale(identifier: "ja_JP")
+        // UI言語に追従させる（ja固定だと英語UIで「◯分前」が混ざる → docs/09 10節）
+        formatter.locale = Locale.current
         let relative = formatter.localizedString(for: date, relativeTo: Date())
-        return "\(relative)（\(entry.tool)）"
+        return String(localized: "\(relative)（\(entry.tool)）")
     }
 
     /// MCP設定スニペット（→ docs/07 6節）

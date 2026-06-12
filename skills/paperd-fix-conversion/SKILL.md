@@ -1,29 +1,30 @@
 ---
 name: paperd-fix-conversion
-description: paperdライブラリ論文のPDF→Markdown変換ミス（文字化け・数式崩れ・誤認識）をPDF原文と照合して修正する。「変換ミスを直して」「Markdownの文字化けを修正して」などで使う。
+description: Fix PDF-to-Markdown conversion errors (garbled characters, broken formulas, misrecognition) in paperd library papers by cross-checking against the original PDF. Use for requests like "fix the conversion errors" or "fix the garbled Markdown" (users may phrase these in any language).
 version: 2
 ---
 
-# paperd 変換修正ワークフロー
+# paperd Conversion-Fix Workflow
 
-paperd MCPの `apply_fulltext_patches` で論文Markdownの変換ミスを安全に修正する。
+Safely fix conversion errors in a paper's Markdown using paperd MCP's `apply_fulltext_patches`.
 
-## 手順
+## Steps
 
-1. `get_paper_metadata` で対象論文の `pdf_path` / `markdown_path` / `conversion_warnings` を取得する。
-2. `get_fulltext` でMarkdownを読み、怪しい箇所を列挙する。典型例:
-   - 文字化け: `¼` `½`（≈や数式の誤認識）、`(cid:123)`、キリル文字の混入（РЬТіОз ← PbTiO3）
-   - 上付き・下付きの欠落: `10^3 Å` → `103 Å`
-   - 数式・化学式の崩れ
-3. **必ず `pdf_path` のPDF原文を読んで照合する**。原文にない内容を書かない（これが最重要規約）。
-4. パッチを作る。各 `find` は**現在の本文に正確に1回だけ出現する長さ**で切り出す
-   （短すぎると複数一致でエラーになる。前後の文脈を含めて一意にする）。
-5. `apply_fulltext_patches` で適用する。`note` に修正根拠（PDFの該当ページ・箇所）を書く。
-6. 適用後の検証は `get_fulltext` で行う（修正は有効Markdownに即時反映され、section指定でも修正版が返る）。
-   `search_papers` のスニペットだけは検索インデックス再構築（アプリがバックグラウンド実行）後に反映される。
-   修正履歴はアプリ側に残り、ユーザが取り消せる。
+1. Get the target paper's `pdf_path` / `markdown_path` / `conversion_warnings` with `get_paper_metadata`.
+2. Read the Markdown with `get_fulltext` and list suspicious passages. Typical cases:
+   - Garbled characters: `¼` `½` (misrecognized ≈ or formulas), `(cid:123)`, stray Cyrillic characters (РЬТіОз ← PbTiO3)
+   - Missing superscripts/subscripts: `10^3 Å` → `103 Å`
+   - Broken formulas and chemical formulas
+3. **Always read the original PDF at `pdf_path` and cross-check.** Never write content that is not in the
+   original (this is the most important rule).
+4. Build the patches. Cut each `find` string long enough that it **occurs exactly once in the current text**
+   (too short and it errors with multiple matches; include surrounding context to make it unique).
+5. Apply with `apply_fulltext_patches`. In `note`, record the justification for the fix (the relevant PDF page and location).
+6. Verify after applying with `get_fulltext` (fixes are reflected immediately in the effective Markdown,
+   including section-scoped reads). Only `search_papers` snippets lag until the search index is rebuilt
+   (the app runs this in the background). The fix history is kept on the app side and the user can revert it.
 
-## 規約
+## Rules
 
-- PDF原文と照合せずに「ありそうな修正」をしない
-- 大量の機械的置換より、意味が壊れている箇所を優先する（conversion_warningsの種類が手がかり）
+- Do not make "plausible-looking" fixes without cross-checking against the original PDF
+- Prioritize passages where the meaning is broken over bulk mechanical replacements (the kinds of `conversion_warnings` are a clue)

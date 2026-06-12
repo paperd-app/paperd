@@ -80,7 +80,7 @@ public actor JobRunner {
 
         case .refetchCitations:
             guard let fetcher = citationFetcher, let paperId = job.paperId else {
-                _ = try? queue.fail(job.id, error: "引用取得を実行できません（fetcher未設定またはpaper_idなし）", permanent: true)
+                _ = try? queue.fail(job.id, error: "Cannot fetch citations (no fetcher configured or missing paper_id)", permanent: true)
                 return
             }
             do {
@@ -93,7 +93,7 @@ public actor JobRunner {
             }
 
         case nil:
-            _ = try? queue.fail(job.id, error: "未知のジョブ種別: \(job.kind)", permanent: true)
+            _ = try? queue.fail(job.id, error: "Unknown job kind: \(job.kind)", permanent: true)
         }
     }
 

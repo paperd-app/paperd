@@ -111,7 +111,7 @@ public struct WorkerProcessManager {
         guard let uvPath = UVLocator.find() else {
             throw WorkerClient.WorkerAPIError(
                 code: "MODEL_NOT_READY",
-                message: "uv が見つかりません。brew install uv 等でインストールしてください（設定 > ワーカーに案内があります）。",
+                message: "uv not found. Install it (e.g. brew install uv); see Settings > Worker for guidance.",
                 statusCode: 0)
         }
         process.executableURL = URL(fileURLWithPath: uvPath)
@@ -146,6 +146,6 @@ public struct WorkerProcessManager {
             }
         }
         process.terminate()
-        throw WorkerClient.WorkerAPIError(code: "INTERNAL", message: "ワーカーの起動に失敗しました（ポート通知を受信できません）", statusCode: 0)
+        throw WorkerClient.WorkerAPIError(code: "INTERNAL", message: "Failed to start worker (no port notification received)", statusCode: 0)
     }
 }

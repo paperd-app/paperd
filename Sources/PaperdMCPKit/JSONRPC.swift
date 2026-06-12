@@ -26,7 +26,7 @@ public enum JSONValue: Codable, Equatable, Sendable {
         } else if let o = try? container.decode([String: JSONValue].self) {
             self = .object(o)
         } else {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "未知のJSON値")
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unknown JSON value")
         }
     }
 

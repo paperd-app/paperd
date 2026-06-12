@@ -17,7 +17,7 @@ public struct CrossrefClient: Sendable {
         var urlString = "\(baseURL)/works/\(encoded)"
         if let mailto { urlString += "?mailto=\(mailto)" }
         guard let url = URL(string: urlString) else {
-            throw MetadataError.network(source: "Crossref", message: "不正なURL")
+            throw MetadataError.network(source: "Crossref", message: "Invalid URL")
         }
         let response = try await http.send(HTTPRequest(url: url))
         if response.statusCode == 404 {
@@ -47,7 +47,7 @@ public struct CrossrefClient: Sendable {
         query += "&rows=5"
         if let mailto { query += "&mailto=\(mailto)" }
         guard let url = URL(string: "\(baseURL)/works?\(query)") else {
-            throw MetadataError.network(source: "Crossref", message: "不正なURL")
+            throw MetadataError.network(source: "Crossref", message: "Invalid URL")
         }
         let response = try await http.send(HTTPRequest(url: url))
         guard response.isSuccess else {
@@ -82,7 +82,7 @@ public struct CrossrefClient: Sendable {
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let message = json["message"] as? [String: Any]
         else {
-            throw MetadataError.parse(source: "Crossref", message: "JSONの形式が不正")
+            throw MetadataError.parse(source: "Crossref", message: "Malformed JSON response")
         }
 
         let title = (message["title"] as? [String])?.first ?? "(no title)"

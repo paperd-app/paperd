@@ -104,7 +104,7 @@ public struct WorkerClient: Sendable {
         let response = try await post(path: "/convert", json: body)
         guard let json = try JSONSerialization.jsonObject(with: response.body) as? [String: Any],
               let jobId = json["job_id"] as? String
-        else { throw WorkerAPIError(code: "INTERNAL", message: "job_idがありません", statusCode: response.statusCode) }
+        else { throw WorkerAPIError(code: "INTERNAL", message: "Missing job_id", statusCode: response.statusCode) }
         return jobId
     }
 
@@ -122,7 +122,7 @@ public struct WorkerClient: Sendable {
         let response = try await get(path: "/jobs/\(jobId)")
         guard let json = try JSONSerialization.jsonObject(with: response.body) as? [String: Any],
               let status = json["status"] as? String
-        else { throw WorkerAPIError(code: "INTERNAL", message: "ジョブ状態の解析に失敗", statusCode: response.statusCode) }
+        else { throw WorkerAPIError(code: "INTERNAL", message: "Failed to parse job status", statusCode: response.statusCode) }
         var error: WorkerAPIError?
         if let e = json["error"] as? [String: Any], let code = e["code"] as? String {
             error = WorkerAPIError(code: code, message: (e["message"] as? String) ?? "", statusCode: 0)
@@ -146,7 +146,7 @@ public struct WorkerClient: Sendable {
             case "succeeded":
                 return
             case "failed":
-                throw status.error ?? WorkerAPIError(code: "INTERNAL", message: "変換に失敗", statusCode: 0)
+                throw status.error ?? WorkerAPIError(code: "INTERNAL", message: "Conversion failed", statusCode: 0)
             default:
                 try await Task.sleep(nanoseconds: UInt64(pollIntervalSeconds * 1_000_000_000))
             }
@@ -158,7 +158,7 @@ public struct WorkerClient: Sendable {
         let response = try await post(path: "/embed", json: ["texts": texts, "task": task])
         guard let json = try JSONSerialization.jsonObject(with: response.body) as? [String: Any],
               let embeddings = json["embeddings"] as? [[Double]]
-        else { throw WorkerAPIError(code: "INTERNAL", message: "embeddingsの解析に失敗", statusCode: response.statusCode) }
+        else { throw WorkerAPIError(code: "INTERNAL", message: "Failed to parse embeddings", statusCode: response.statusCode) }
         return embeddings.map { $0.map(Float.init) }
     }
 
@@ -173,7 +173,7 @@ public struct WorkerClient: Sendable {
         let response = try await get(path: "/health")
         guard let json = try JSONSerialization.jsonObject(with: response.body) as? [String: Any],
               let status = json["status"] as? String
-        else { throw WorkerAPIError(code: "INTERNAL", message: "healthの解析に失敗", statusCode: response.statusCode) }
+        else { throw WorkerAPIError(code: "INTERNAL", message: "Failed to parse health response", statusCode: response.statusCode) }
         return Health(
             status: status,
             modelLoaded: (json["model_loaded"] as? Bool) ?? false,
@@ -206,7 +206,7 @@ extension WorkerClient: QueryEmbedder {
     public func embedQuery(_ text: String) async throws -> [Float] {
         let result = try await embed(texts: [text], task: "query")
         guard let first = result.first else {
-            throw WorkerAPIError(code: "INTERNAL", message: "空のembedding応答", statusCode: 0)
+            throw WorkerAPIError(code: "INTERNAL", message: "Empty embedding response", statusCode: 0)
         }
         return first
     }

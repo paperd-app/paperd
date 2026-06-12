@@ -1,0 +1,2516 @@
+{
+  "sourceLanguage": "ja",
+  "strings": {
+    "\n\nMCP経由でAIに修正させるか、「高精度で再変換」を試してください": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\n\nHave AI fix it via MCP, or try “Reconvert with High Accuracy”"
+          }
+        }
+      }
+    },
+    " 回 引用されています": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " times so far"
+          }
+        }
+      }
+    },
+    " 本の論文は、これまでに ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " papers have been cited "
+          }
+        }
+      }
+    },
+    "%@ %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %lld"
+          }
+        }
+      }
+    },
+    "%@: %lld件（例: %@）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: %lld (e.g. %@)"
+          }
+        }
+      }
+    },
+    "%@（%@）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (%@)"
+          }
+        }
+      }
+    },
+    "%@（%lld件）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (%lld)"
+          }
+        }
+      }
+    },
+    "%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        }
+      }
+    },
+    "%lld 件のPDFを取り込みますか？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import %lld PDFs?"
+          }
+        }
+      }
+    },
+    "%lld 件をゴミ箱に移動": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move %lld Papers to Trash"
+          }
+        }
+      }
+    },
+    "%lld 個のスキルをインストールしますか？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install %lld skills?"
+          }
+        }
+      }
+    },
+    "%lld.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld."
+          }
+        }
+      }
+    },
+    "%lld分%lld秒": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lldm %llds"
+          }
+        }
+      }
+    },
+    "%lld年〜": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld and later"
+          }
+        }
+      }
+    },
+    "%lld秒": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%llds"
+          }
+        }
+      }
+    },
+    "+%lld件省略": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld omitted"
+          }
+        }
+      }
+    },
+    "1ホップ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 Hop"
+          }
+        }
+      }
+    },
+    "2ホップ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 Hops"
+          }
+        }
+      }
+    },
+    "2ホップ先（間接）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 hops away (indirect)"
+          }
+        }
+      }
+    },
+    "AIクライアント（Claude等）からのアクセスはまだありません。クリックで登録方法を表示": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No access from AI clients (such as Claude) yet. Click to see how to connect"
+          }
+        }
+      }
+    },
+    "APIキー（任意）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API key (optional)"
+          }
+        }
+      }
+    },
+    "BibTeXをコピー": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy BibTeX"
+          }
+        }
+      }
+    },
+    "Chicago（著者-年）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chicago (author–date)"
+          }
+        }
+      }
+    },
+    "Claudeスキル": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Skills"
+          }
+        }
+      }
+    },
+    "Claude連携（MCP）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Integration (MCP)"
+          }
+        }
+      }
+    },
+    "Crossref / OpenAlex / Unpaywall へのリクエストに付与されます。設定変更はアプリ再起動後に反映されます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attached to requests to Crossref, OpenAlex, and Unpaywall. Changes take effect after restarting the app."
+          }
+        }
+      }
+    },
+    "DOIまたはarXiv IDとして解釈できません: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not interpret as a DOI or arXiv ID: %@"
+          }
+        }
+      }
+    },
+    "Docling変換結果（paper.md）— AIはこの内容を参照します。変換ミスがないかPDFタブと見比べて確認できます": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Docling conversion result (paper.md) — AI reads this content. Compare with the PDF tab to check for conversion errors"
+          }
+        }
+      }
+    },
+    "Finderで表示": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show in Finder"
+          }
+        }
+      }
+    },
+    "MCP: 未接続": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MCP: Not Connected"
+          }
+        }
+      }
+    },
+    "MCPの最終アクセス。クリックで連携設定を開く": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time of the last MCP access. Click to open integration settings"
+          }
+        }
+      }
+    },
+    "Markdownがありません": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Markdown"
+          }
+        }
+      }
+    },
+    "PDFがありません": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No PDF"
+          }
+        }
+      }
+    },
+    "PDFはありますが書誌（メタデータ）が特定できていない論文です。BibTeXの生成や引用グラフが使えません。論文を選択して「メタデータ未解決」バナーからDOI / arXiv IDを指定すると解決できます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Papers that have a PDF but whose metadata could not be identified. BibTeX generation and the citation graph are unavailable. Select a paper and specify a DOI or arXiv ID from the “Unresolved Metadata” banner to resolve it."
+          }
+        }
+      }
+    },
+    "PDFをドロップして取り込み": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop PDFs to Import"
+          }
+        }
+      }
+    },
+    "PDFを書き出し": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export PDF"
+          }
+        }
+      }
+    },
+    "PDFファイル / フォルダから取り込む…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import from PDF Files / Folder…"
+          }
+        }
+      }
+    },
+    "PDFファイル / フォルダから取り込む（⌘O）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import from PDF files or a folder (⌘O)"
+          }
+        }
+      }
+    },
+    "PDFファイルが見つかりませんでした": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No PDF files found"
+          }
+        }
+      }
+    },
+    "PDFファイルはウィンドウへのドラッグ&ドロップでも取り込めます（フォルダ可）。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can also import PDF files by dragging and dropping them onto the window (folders work too)."
+          }
+        }
+      }
+    },
+    "PDF・Markdown・ノートを含む論文フォルダがゴミ箱へ移動され、検索インデックスと引用エッジから取り除かれます。ゴミ箱から戻した場合は「インデックス再構築」で復元できます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The paper folder, including its PDF, Markdown, and notes, will be moved to the Trash and removed from the search index and citation edges. If you put it back from the Trash, use “Rebuild Index” to restore it."
+          }
+        }
+      }
+    },
+    "PDF変換（convert）が完了するとここに表示されます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appears here once PDF conversion (convert) completes."
+          }
+        }
+      }
+    },
+    "PDF未取得": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Missing PDF"
+          }
+        }
+      }
+    },
+    "Pythonワーカーが未起動です。設定画面からワーカーをセットアップ・起動してください。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Python worker is not running. Set up and start the worker from Settings."
+          }
+        }
+      }
+    },
+    "Pythonワーカー（PDF変換・Semantic検索）が稼働中。クリックでワーカー設定を開く": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Python worker (PDF conversion and semantic search) is running. Click to open worker settings"
+          }
+        }
+      }
+    },
+    "Python環境が未セットアップです。セットアップを完了するとSemantic検索とPDF変換が有効になります。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Python environment isn’t set up. Complete setup to enable semantic search and PDF conversion."
+          }
+        }
+      }
+    },
+    "S2/OpenAlexの補完情報を更新し、arXiv版・OA版のPDFを再探索します": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refreshes S2/OpenAlex metadata and searches again for arXiv or open-access PDFs"
+          }
+        }
+      }
+    },
+    "Supplementary等の補助ファイルを追加（ドロップでも追加できます）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add supplementary files (you can also drop them here)"
+          }
+        }
+      }
+    },
+    "Webページを開く": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Web Page"
+          }
+        }
+      }
+    },
+    "arXiv / DOI / URL を入力して取り込む（⌘N）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import by entering an arXiv ID, DOI, or URL (⌘N)"
+          }
+        }
+      }
+    },
+    "arXiv ID / DOI / URL を入力（種別は自動判別）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter an arXiv ID, DOI, or URL (type is detected automatically)"
+          }
+        }
+      }
+    },
+    "claude_desktop_config.json / .mcp.json に貼り付けると、Claudeからライブラリを検索・参照できます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste into claude_desktop_config.json or .mcp.json to let Claude search and browse your library."
+          }
+        }
+      }
+    },
+    "meta.json等のファイル（正本）からデータベースを作り直し、全論文の検索インデックスをバックグラウンドで再計算します。ワーカーが必要です。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recreates the database from the source-of-truth files such as meta.json and recomputes the search index for all papers in the background. Requires the worker."
+          }
+        }
+      }
+    },
+    "paywall等でPDFを取得できなかった、または書誌のみ登録した論文です。書誌・BibTeX・タイトル+アブストの検索は機能しています。論文を選択してPDFタブの「代替PDFを自動で探す」でプレプリント版・OA版を再探索するか、入手したPDFをPDFタブへドロップすると全文が索引化されます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Papers whose PDF could not be retrieved (e.g. paywalled), or that were added as metadata only. Metadata, BibTeX, and title + abstract search still work. Select a paper and use “Find Alternative PDF” in the PDF tab to search for preprint or open-access versions, or drop a PDF you obtained onto the PDF tab to index the full text."
+          }
+        }
+      }
+    },
+    "uv が見つかりません。ワーカーの実行にはuvが必要です。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "uv was not found. uv is required to run the worker."
+          }
+        }
+      }
+    },
+    "worker/ ディレクトリのパス": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Path to worker/ directory"
+          }
+        }
+      }
+    },
+    "~/.claude/skills/ に書き込まれます（既存の同名スキルは上書き）。Claude Codeの次回起動から有効になります。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This will write to ~/.claude/skills/ (existing skills with the same name are overwritten). Takes effect the next time Claude Code starts."
+          }
+        }
+      }
+    },
+    "§ %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "§ %@"
+          }
+        }
+      }
+    },
+    "•": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "•"
+          }
+        }
+      }
+    },
+    "✅ 完了\n": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✅ Done\n"
+          }
+        }
+      }
+    },
+    "✅ 起動: %@ (model_loaded: %@)\n": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✅ Started: %@ (model_loaded: %@)\n"
+          }
+        }
+      }
+    },
+    "❌ 終了コード %lld\n": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "❌ Exit code %lld\n"
+          }
+        }
+      }
+    },
+    "「%@」の %lld 件をすべて削除しますか？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete all %2$lld papers in “%1$@”?"
+          }
+        }
+      }
+    },
+    "「%@」の論文をすべてゴミ箱に移動": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move all papers in “%@” to the Trash"
+          }
+        }
+      }
+    },
+    "「%@」をライブラリに取り込みますか？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import “%@” into your library?"
+          }
+        }
+      }
+    },
+    "「%@」を削除しますか？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete “%@”?"
+          }
+        }
+      }
+    },
+    "「%@」リストを開く": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the “%@” list"
+          }
+        }
+      }
+    },
+    "「Attention is All you Need」の手法の章を全文から要約して": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Summarize the methods section of \"Attention Is All You Need\" from the full text"
+          }
+        }
+      }
+    },
+    "「あの手法について書いてあった論文」のように自然言語でも検索できます（⌘F）。ClaudeなどのAIからの利用は設定 > 連携から。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can also search in natural language, like “the paper that described that method” (⌘F). To use from AI assistants such as Claude, see Settings > Integrations."
+          }
+        }
+      }
+    },
+    "「引用情報を更新」でSemantic Scholarから取得します（取り込み完了時にも自動取得されます）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use “Update Citations” to fetch from Semantic Scholar (also fetched automatically when ingestion completes)"
+          }
+        }
+      }
+    },
+    "あなたの ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your "
+          }
+        }
+      }
+    },
+    "あなたの %lld 本の論文のネットワーク": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network of your %lld papers"
+          }
+        }
+      }
+    },
+    "お気に入り": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorites"
+          }
+        }
+      }
+    },
+    "お気に入りから外す": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from Favorites"
+          }
+        }
+      }
+    },
+    "お気に入りに追加": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to Favorites"
+          }
+        }
+      }
+    },
+    "ここにPDFをドロップすると、**この論文に添付**されて変換・インデックス化が再開されます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop a PDF here to **attach it to this paper** and resume conversion and indexing."
+          }
+        }
+      }
+    },
+    "このPDFは既に「%@」として登録されています": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This PDF is already registered as \"%@\""
+          }
+        }
+      }
+    },
+    "このリストの %lld 件をすべて削除…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete All %lld Items in This List…"
+          }
+        }
+      }
+    },
+    "このリストの論文フォルダがすべてゴミ箱へ移動され、検索インデックスと引用エッジから取り除かれます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All paper folders in this list will be moved to the Trash and removed from the search index and citation edges."
+          }
+        }
+      }
+    },
+    "このリストの論文フォルダがすべてゴミ箱へ移動されます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All paper folders in this list will be moved to the Trash."
+          }
+        }
+      }
+    },
+    "このリストは空です": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This list is empty"
+          }
+        }
+      }
+    },
+    "このリストをすべて削除…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete All in This List…"
+          }
+        }
+      }
+    },
+    "この論文に添付する補助ファイル（Supplementary等）を選択してください": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose supplementary files to attach to this paper"
+          }
+        }
+      }
+    },
+    "この論文の変換ミスをPDFと照合して修正して": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fix this paper's conversion errors by checking them against the PDF"
+          }
+        }
+      }
+    },
+    "この論文はDOI/arXiv IDを持たないため取り込めません": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This paper cannot be imported because it has no DOI or arXiv ID"
+          }
+        }
+      }
+    },
+    "すべて": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All"
+          }
+        }
+      }
+    },
+    "すべて無視": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dismiss All"
+          }
+        }
+      }
+    },
+    "その他クライアント": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other Clients"
+          }
+        }
+      }
+    },
+    "なし": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        }
+      }
+    },
+    "アプリ起動時にワーカーを自動起動": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start worker automatically at launch"
+          }
+        }
+      }
+    },
+    "インストール": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install"
+          }
+        }
+      }
+    },
+    "インストール…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install…"
+          }
+        }
+      }
+    },
+    "インストールしました（%@）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installed (%@)"
+          }
+        }
+      }
+    },
+    "インストールコマンドをコピー": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy Install Command"
+          }
+        }
+      }
+    },
+    "インストール済み": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installed"
+          }
+        }
+      }
+    },
+    "インデックスを再構築…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rebuild Index…"
+          }
+        }
+      }
+    },
+    "エラー": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error"
+          }
+        }
+      }
+    },
+    "キャンセル": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        }
+      }
+    },
+    "キーワード #%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keyword #%lld"
+          }
+        }
+      }
+    },
+    "キーワードのみ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keyword Only"
+          }
+        }
+      }
+    },
+    "キーワードのみで検索しました（ワーカー未起動。設定 > ワーカーから起動するとsemantic検索が有効になります）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Searched with keywords only (worker not running; start it from Settings > Worker to enable semantic search)"
+          }
+        }
+      }
+    },
+    "クリックでMarkdownタブの該当セクションを開く": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click to open this section in the Markdown tab"
+          }
+        }
+      }
+    },
+    "クリックでワーカー設定を開く": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click to open worker settings"
+          }
+        }
+      }
+    },
+    "クリックで開く: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click to open: %@"
+          }
+        }
+      }
+    },
+    "クリップボードから入力しました": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filled in from the clipboard"
+          }
+        }
+      }
+    },
+    "コピー": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        }
+      }
+    },
+    "ゴミ箱に移動": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move to Trash"
+          }
+        }
+      }
+    },
+    "ジョブ %lld 件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld jobs"
+          }
+        }
+      }
+    },
+    "スタイルを選んで整形済みの引用文をコピー（前回: %@）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy a formatted citation in a style of your choice (last used: %@)"
+          }
+        }
+      }
+    },
+    "ステージ: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stage: %@"
+          }
+        }
+      }
+    },
+    "セットアップ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setup"
+          }
+        }
+      }
+    },
+    "タイトル": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Title"
+          }
+        }
+      }
+    },
+    "ノート": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notes"
+          }
+        }
+      }
+    },
+    "ノートあり": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "With notes"
+          }
+        }
+      }
+    },
+    "ハイブリッド": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hybrid"
+          }
+        }
+      }
+    },
+    "ヒットなし": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Results"
+          }
+        }
+      }
+    },
+    "ヒット強度（トップヒット比 %lld%%）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hit strength (%lld%% of top hit)"
+          }
+        }
+      }
+    },
+    "ファイル / フォルダから…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From File or Folder…"
+          }
+        }
+      }
+    },
+    "ホップ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hops"
+          }
+        }
+      }
+    },
+    "メタデータ未解決": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metadata Not Resolved"
+          }
+        }
+      }
+    },
+    "メールアドレス（politeプール用）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email address (for polite pool)"
+          }
+        }
+      }
+    },
+    "ライブラリ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
+        }
+      }
+    },
+    "ライブラリから分極スイッチングに関する論文を探して、要点を比較して": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find papers about polarization switching in my library and compare their key points"
+          }
+        }
+      }
+    },
+    "ライブラリに取り込む": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to Library"
+          }
+        }
+      }
+    },
+    "ライブラリを検索": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search Library"
+          }
+        }
+      }
+    },
+    "ログ出力": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log output"
+          }
+        }
+      }
+    },
+    "ワーカー": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Worker"
+          }
+        }
+      }
+    },
+    "ワーカーはPDF変換とSemantic検索を担うバックグラウンドプロセスです。通常は自動管理され、操作は不要です。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The worker is a background process that handles PDF conversion and semantic search. It is managed automatically and normally requires no action."
+          }
+        }
+      }
+    },
+    "ワーカーを起動": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Worker"
+          }
+        }
+      }
+    },
+    "ワーカーを起動中…\n": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting worker…\n"
+          }
+        }
+      }
+    },
+    "ワーカー停止中": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Worker stopped"
+          }
+        }
+      }
+    },
+    "ワーカー停止中。クリックでワーカー設定を開く（起動ボタンがあります）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Worker stopped. Click to open worker settings (there is a start button)"
+          }
+        }
+      }
+    },
+    "ワーカー未セットアップ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Worker not set up"
+          }
+        }
+      }
+    },
+    "ワーカー稼働中 (%@)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Worker running (%@)"
+          }
+        }
+      }
+    },
+    "一般": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General"
+          }
+        }
+      }
+    },
+    "並べ替え": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sort By"
+          }
+        }
+      }
+    },
+    "並べ替え: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sort by: %@"
+          }
+        }
+      }
+    },
+    "中心": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Center"
+          }
+        }
+      }
+    },
+    "人に送れるファイル名でPDFをコピーします": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copies the PDF with a filename suitable for sharing"
+          }
+        }
+      }
+    },
+    "代替PDF（プレプリント等）を自動で探す": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find Alternative PDF (Preprint, etc.)"
+          }
+        }
+      }
+    },
+    "例: 10.1134/S1063784214120020 / 1706.03762": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e.g. 10.1134/S1063784214120020 or 1706.03762"
+          }
+        }
+      }
+    },
+    "例: 1706.03762, 10.1038/nature14539, https://arxiv.org/abs/...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e.g. 1706.03762, 10.1038/nature14539, https://arxiv.org/abs/..."
+          }
+        }
+      }
+    },
+    "保存": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        }
+      }
+    },
+    "修正版Markdown（paper.corrected.md）を表示中 — AIはこの内容を参照します": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Showing corrected Markdown (paper.corrected.md) — AI reads this content"
+          }
+        }
+      }
+    },
+    "停止": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop"
+          }
+        }
+      }
+    },
+    "入力を解釈できません: arXiv ID / DOI / URL を指定してください": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not interpret input. Specify an arXiv ID, DOI, or URL."
+          }
+        }
+      }
+    },
+    "全文検索可能": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full-text searchable"
+          }
+        }
+      }
+    },
+    "全期間": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All years"
+          }
+        }
+      }
+    },
+    "再構築": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rebuild"
+          }
+        }
+      }
+    },
+    "再構築する": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rebuild"
+          }
+        }
+      }
+    },
+    "再試行": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        }
+      }
+    },
+    "処理中": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processing"
+          }
+        }
+      }
+    },
+    "処理中のジョブ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active Jobs"
+          }
+        }
+      }
+    },
+    "処理中のジョブはありません": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No active jobs"
+          }
+        }
+      }
+    },
+    "出版年の分布": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Publication Years"
+          }
+        }
+      }
+    },
+    "別のキーワードを試してください": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try different keywords"
+          }
+        }
+      }
+    },
+    "削除": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        }
+      }
+    },
+    "削除…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete…"
+          }
+        }
+      }
+    },
+    "削除（ゴミ箱へ）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete (Move to Trash)"
+          }
+        }
+      }
+    },
+    "参考文献": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "References"
+          }
+        }
+      }
+    },
+    "参考文献 = この論文が引用 / 被引用 = この論文を引用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "References = papers this paper cites / Citations = papers that cite this paper"
+          }
+        }
+      }
+    },
+    "参考文献（この論文が引用）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "References (cited by this paper)"
+          }
+        }
+      }
+    },
+    "取り込み": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import"
+          }
+        }
+      }
+    },
+    "取り込み処理に失敗した論文です。ステータスバーのジョブ一覧から再試行するか、不要であればまとめて削除できます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Papers whose ingestion failed. Retry them from the job list in the status bar, or delete them all if no longer needed."
+          }
+        }
+      }
+    },
+    "取り込む": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import"
+          }
+        }
+      }
+    },
+    "取り込むPDFファイル、またはPDFを含むフォルダを選択してください（フォルダは再帰的に走査されます）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select PDF files to import, or folders containing PDFs (folders are scanned recursively)"
+          }
+        }
+      }
+    },
+    "場所": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location"
+          }
+        }
+      }
+    },
+    "変換は1件ずつ順番に実行されるため、件数が多いと完了まで時間がかかります。進捗はステータスバーで確認できます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conversions run one at a time, so a large batch may take a while to finish. You can check progress in the status bar."
+          }
+        }
+      }
+    },
+    "外部API": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "External APIs"
+          }
+        }
+      }
+    },
+    "外部からの取り込みリクエスト": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "External Import Request"
+          }
+        }
+      }
+    },
+    "失敗": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed"
+          }
+        }
+      }
+    },
+    "失敗 %lld 件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld failed"
+          }
+        }
+      }
+    },
+    "失敗をすべて無視": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dismiss All Failures"
+          }
+        }
+      }
+    },
+    "失敗ジョブの記録を消去します（論文自体は消えません）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clears the records of failed jobs (the papers themselves are not deleted)"
+          }
+        }
+      }
+    },
+    "実行中": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running"
+          }
+        }
+      }
+    },
+    "対応待ち": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needs Attention"
+          }
+        }
+      }
+    },
+    "年": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Year"
+          }
+        }
+      }
+    },
+    "年代": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Year"
+          }
+        }
+      }
+    },
+    "引用をコピー": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy Citation"
+          }
+        }
+      }
+    },
+    "引用グラフ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Citation Graph"
+          }
+        }
+      }
+    },
+    "引用グラフ取得のレートリミット緩和に推奨。x-api-keyヘッダで送信されます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recommended for relaxed rate limits when fetching citation graphs. Sent in the x-api-key header."
+          }
+        }
+      }
+    },
+    "引用データがありません": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Citation Data"
+          }
+        }
+      }
+    },
+    "引用元 %lld 論文": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Citing papers: %lld"
+          }
+        }
+      }
+    },
+    "引用情報の取得": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Citation Fetch"
+          }
+        }
+      }
+    },
+    "引用情報を更新": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update Citations"
+          }
+        }
+      }
+    },
+    "引用情報を更新中…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updating citation data…"
+          }
+        }
+      }
+    },
+    "強制OCR + 数式エンリッチメントで変換し直します（数分かかります）。文字化けや上付き文字の潰れの回復に有効です": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reconverts with forced OCR and formula enrichment (takes a few minutes). Useful for recovering garbled text and broken superscripts"
+          }
+        }
+      }
+    },
+    "強誘電体について文献調査して。重要な未所持論文があれば提案して": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Survey the literature on ferroelectrics and suggest any important papers I don't have yet"
+          }
+        }
+      }
+    },
+    "待機中": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Queued"
+          }
+        }
+      }
+    },
+    "情報": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Info"
+          }
+        }
+      }
+    },
+    "意味 %lld%%": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semantic %lld%%"
+          }
+        }
+      }
+    },
+    "文字化けの疑い %lld件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld possible garbled-text issues"
+          }
+        }
+      }
+    },
+    "文字化けの疑い %lld件（Markdownタブで確認 → docs/05 4.1節）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Possible garbled text: %lld (check the Markdown tab → docs/05 §4.1)"
+          }
+        }
+      }
+    },
+    "文字化けの疑いがある論文が %lld 件あります。Markdownタブの「高精度で再変換」をお試しください。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld papers may contain garbled text. Try “Reconvert with High Accuracy” in the Markdown tab."
+          }
+        }
+      }
+    },
+    "文献調査・変換修正・執筆引用の定型ワークフロー（%@）をClaude Codeのスキルとしてインストールします。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installs standard workflows for literature research, conversion fixes, and citation writing (%@) as Claude Code skills."
+          }
+        }
+      }
+    },
+    "更新…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update…"
+          }
+        }
+      }
+    },
+    "更新あり": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update Available"
+          }
+        }
+      }
+    },
+    "書誌データベースを再構築しました。検索インデックス（%lld論文）はバックグラウンドで再計算されます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rebuilt the bibliographic database. Search indexes (%lld papers) will be recalculated in the background."
+          }
+        }
+      }
+    },
+    "書誌情報を自動解決できませんでした。この論文のDOIまたはarXiv IDを入力すると解決をやり直します。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bibliographic information couldn’t be resolved automatically. Enter this paper’s DOI or arXiv ID to retry."
+          }
+        }
+      }
+    },
+    "書誌未解決": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unresolved Metadata"
+          }
+        }
+      }
+    },
+    "最終アクセス": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last Access"
+          }
+        }
+      }
+    },
+    "最近追加": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recently Added"
+          }
+        }
+      }
+    },
+    "検索インデックスを再構築しますか？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rebuild the search index?"
+          }
+        }
+      }
+    },
+    "検索インデックス更新": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search Index Update"
+          }
+        }
+      }
+    },
+    "検索結果": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search Results"
+          }
+        }
+      }
+    },
+    "正本: papers/%@…/notes.md": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source of truth: papers/%@…/notes.md"
+          }
+        }
+      }
+    },
+    "添付ファイル": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attachments"
+          }
+        }
+      }
+    },
+    "無視": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dismiss"
+          }
+        }
+      }
+    },
+    "状態": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status"
+          }
+        }
+      }
+    },
+    "環境構築はDocling + PyTorchで2〜3GBのダウンロードを伴います。embeddingモデル（bge-m3、約2GB）は初回利用時に取得されます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setup involves a 2–3 GB download for Docling + PyTorch. The embedding model (bge-m3, about 2 GB) is downloaded on first use."
+          }
+        }
+      }
+    },
+    "環境構築（uv sync --extra ml）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set Up Environment (uv sync --extra ml)"
+          }
+        }
+      }
+    },
+    "画像（v1では抽出されません。原図はPDFタブで確認）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image (not extracted in v1; see the PDF tab for the original)"
+          }
+        }
+      }
+    },
+    "登録コマンドをコピー": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy Registration Command"
+          }
+        }
+      }
+    },
+    "相互引用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mutual citation"
+          }
+        }
+      }
+    },
+    "稼働中のワーカーが古いバージョンです。設定画面から起動し直してください。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The running worker is an older version. Restart it from Settings."
+          }
+        }
+      }
+    },
+    "第一著者": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First Author"
+          }
+        }
+      }
+    },
+    "自著 %lld 本": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your papers: %lld"
+          }
+        }
+      }
+    },
+    "自著論文": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My Papers"
+          }
+        }
+      }
+    },
+    "自著論文から外す": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from My Papers"
+          }
+        }
+      }
+    },
+    "自著論文に登録": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to My Papers"
+          }
+        }
+      }
+    },
+    "自著論文を登録しましょう": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark Your Own Papers"
+          }
+        }
+      }
+    },
+    "薄色 = 未取り込み（stub）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faded = not in library (stub)"
+          }
+        }
+      }
+    },
+    "表示する出版年の下限": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minimum publication year to show"
+          }
+        }
+      }
+    },
+    "表示は上位%lld件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Showing top %lld"
+          }
+        }
+      }
+    },
+    "被引用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Citations"
+          }
+        }
+      }
+    },
+    "被引用 %lld 件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Citations: %lld"
+          }
+        }
+      }
+    },
+    "被引用（この論文を引用）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Citations (papers citing this paper)"
+          }
+        }
+      }
+    },
+    "解決": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resolve"
+          }
+        }
+      }
+    },
+    "解釈できないURLです: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not interpret this URL: %@"
+          }
+        }
+      }
+    },
+    "記録なし（まだ接続されていません）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No record (not connected yet)"
+          }
+        }
+      }
+    },
+    "設定を開く": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        }
+      }
+    },
+    "設定スニペットをコピー": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy Config Snippet"
+          }
+        }
+      }
+    },
+    "試してみる（Claudeに貼り付け）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try It Out (Paste into Claude)"
+          }
+        }
+      }
+    },
+    "論文": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Papers"
+          }
+        }
+      }
+    },
+    "論文がありません": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Papers"
+          }
+        }
+      }
+    },
+    "論文が見つかりません: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paper not found: %@"
+          }
+        }
+      }
+    },
+    "論文を取り込む": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import Paper"
+          }
+        }
+      }
+    },
+    "論文を取り込む（arXiv / DOI / URL）…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import Paper (arXiv / DOI / URL)…"
+          }
+        }
+      }
+    },
+    "論文リストの右クリックメニュー、または情報タブの人物アイコンから\n「自著論文に登録」すると、ここにあなたの論文の被引用ネットワークが表示されます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use “Mark as Own Paper” from the paper list’s context menu or the person icon in the Info tab,\nand the citation network of your papers will appear here."
+          }
+        }
+      }
+    },
+    "起動": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        }
+      }
+    },
+    "追加日": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Date Added"
+          }
+        }
+      }
+    },
+    "連携": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Integrations"
+          }
+        }
+      }
+    },
+    "選択…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose…"
+          }
+        }
+      }
+    },
+    "選択を解除": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deselect"
+          }
+        }
+      }
+    },
+    "選択中の論文をゴミ箱に移動（⌘⌫）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move the selected paper to the Trash (⌘⌫)"
+          }
+        }
+      }
+    },
+    "開く": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open"
+          }
+        }
+      }
+    },
+    "関係": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relation"
+          }
+        }
+      }
+    },
+    "高精度で再変換": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reconvert with High Accuracy"
+          }
+        }
+      }
+    },
+    "高精度再変換": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High-Accuracy Reconversion"
+          }
+        }
+      }
+    },
+    "（このビルドにはスキルが同梱されていません）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(No skills are bundled with this build)"
+          }
+        }
+      }
+    },
+    "＋ボタン・PDFドロップ・MCPのadd_paperで論文を追加できます": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add papers with the + button, by dropping PDFs, or via add_paper over MCP"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

@@ -71,7 +71,7 @@ public struct MetadataResolver: Sendable {
     /// メタタグの無いページは恒久的エラー（parse）— リトライしても解決しない
     func resolveWebpage(_ urlString: String) async throws -> ResolvedMetadata {
         guard let url = URL(string: urlString) else {
-            throw MetadataError.parse(source: "webpage", message: "不正なURL: \(urlString)")
+            throw MetadataError.parse(source: "webpage", message: "Invalid URL: \(urlString)")
         }
         let response = try await http.send(HTTPRequest(url: url))
         guard response.isSuccess else {
@@ -97,7 +97,7 @@ public struct MetadataResolver: Sendable {
         guard let title = tags.title else {
             throw MetadataError.parse(
                 source: "webpage",
-                message: "citationメタタグが見つかりません。このページからは書誌を特定できないため、DOIまたはarXiv IDでの追加をお試しください: \(urlString)")
+                message: "No citation meta tags found. Bibliographic data cannot be determined from this page; try adding by DOI or arXiv ID instead: \(urlString)")
         }
 
         // タグから書誌を構築

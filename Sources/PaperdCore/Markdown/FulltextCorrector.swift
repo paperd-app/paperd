@@ -46,13 +46,13 @@ public struct FulltextCorrector: Sendable {
         public var description: String {
             switch self {
             case .markdownNotFound(let id):
-                return "論文 \(id) にはまだMarkdownがありません（変換待ち）"
+                return "Paper \(id) has no Markdown yet (conversion pending)"
             case .emptyPatches:
-                return "patchesが空です"
+                return "patches is empty"
             case .findNotFound(let index, let find):
-                return "パッチ\(index): find「\(find.prefix(80))」が本文中に見つかりません。現在の本文をget_fulltextで確認してください"
+                return "Patch \(index): find \"\(find.prefix(80))\" not found in the text. Check the current text with get_fulltext"
             case .findAmbiguous(let index, let find, let occurrences):
-                return "パッチ\(index): find「\(find.prefix(80))」が本文中に\(occurrences)回出現します。前後の文脈を含めて一意に特定できる長さにしてください"
+                return "Patch \(index): find \"\(find.prefix(80))\" occurs \(occurrences) times in the text. Include surrounding context to make it unique"
             }
         }
     }

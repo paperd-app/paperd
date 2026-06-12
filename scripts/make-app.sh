@@ -33,6 +33,11 @@ cp -R skills "$APP/Contents/Resources/skills"
 mkdir -p "$APP/Contents/Resources/worker"
 cp worker/pyproject.toml worker/uv.lock "$APP/Contents/Resources/worker/"
 cp -R worker/src "$APP/Contents/Resources/worker/src"
+# UIローカリゼーション: String Catalogを .lproj/Localizable.strings へコンパイルして
+# app Resources直下に置き、Bundle.main で解決できるようにする（→ docs/09 10.1節）。
+# swift build（CLI）はxcstringsを素通しコピーするだけでコンパイルしないため、ここで行う
+xcrun xcstringstool compile Sources/Paperd/Localizable.xcstrings \
+  --output-directory "$APP/Contents/Resources"
 
 cat > "$APP/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -41,6 +46,12 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>ja</string>
+	<!-- UI対応言語（→ docs/09 10節） -->
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ja</string>
+		<string>en</string>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>Paperd</string>
 	<key>CFBundleIdentifier</key>

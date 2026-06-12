@@ -49,7 +49,7 @@ public struct LiveStageExecutors: IngestStageExecutors {
     public func downloadFile(from url: URL, to destination: URL) async throws {
         let response = try await http.send(HTTPRequest(url: url))
         guard response.isSuccess, !response.body.isEmpty else {
-            throw IngestError.permanent("PDFをダウンロードできません（HTTP \(response.statusCode)）: \(url.absoluteString)")
+            throw IngestError.permanent("Failed to download PDF (HTTP \(response.statusCode)): \(url.absoluteString)")
         }
         try response.body.write(to: destination, options: .atomic)
     }

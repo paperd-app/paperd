@@ -49,7 +49,7 @@ public struct MCPServer: Sendable {
 
         case "tools/call":
             guard let name = request.params?["name"]?.stringValue else {
-                return JSONRPCResponse(id: request.id, error: .invalidParams("nameがありません"))
+                return JSONRPCResponse(id: request.id, error: .invalidParams("Missing 'name' parameter"))
             }
             let arguments = request.params?["arguments"]?.objectValue ?? [:]
             let result = await tools.call(name: name, arguments: arguments)

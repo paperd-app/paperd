@@ -19,7 +19,7 @@ public struct SearchIndex: Sendable {
         embeddings: [[Float]]? = nil
     ) throws -> [Int64] {
         if let embeddings {
-            precondition(embeddings.count == pieces.count, "embeddings数がチャンク数と一致しません")
+            precondition(embeddings.count == pieces.count, "embeddings count does not match chunk count")
         }
         return try db.write { dbc in
             try deleteChunks(dbc, paperId: paperId)

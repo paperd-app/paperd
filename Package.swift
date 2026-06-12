@@ -8,6 +8,8 @@ let swiftSettings: [SwiftSetting] = [
 
 let package = Package(
     name: "paperd",
+    // UI文言のベース言語は日本語（String Catalogでenを提供 → docs/09 10節）
+    defaultLocalization: "ja",
     platforms: [
         .macOS(.v14),
     ],
@@ -44,6 +46,10 @@ let package = Package(
         .executableTarget(
             name: "Paperd",
             dependencies: ["PaperdCore"],
+            resources: [
+                // UI文言のen訳（→ docs/09 10節）。make-app.shが.lprojをapp Resourcesへ展開する
+                .process("Localizable.xcstrings"),
+            ],
             swiftSettings: swiftSettings
         ),
         // ヘッドレス運用・E2E検証用CLI
