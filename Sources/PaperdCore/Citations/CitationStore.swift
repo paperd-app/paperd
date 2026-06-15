@@ -285,6 +285,40 @@ public struct CitationStore: Sendable {
         return try Citation.fetchAll(dbc, sql: sql, arguments: [paperId, paperId])
     }
 
+    // MARK: - 引用リスト（MCP get_citations用 → docs/07 2.8節）
+
+    /// 中心論文の参考文献・被引用を論文行のリストで返す（エゴネットワークの表示間引きは適用しない）。
+    /// - references = 中心が引用する文献（citing = center → cited）
+    /// - citations  = 中心を引用する文献（citing → cited = center）
+    /// 並びは新しい年から（年なしは末尾）。ライブラリ外の文献は stub 行として含まれる。
+    public struct CitationLists: Equatable, Sendable {
+        public var references: [Paper]
+        public var citations: [Paper]
+        public init(references: [Paper], citations: [Paper]) {
+            self.references = references
+            self.citations = citations
+        }
+    }
+
+    public func citationLists(of paperId: String, limit: Int? = nil) throws -> CitationLists {
+        try db.read { dbc in
+            let limitClause = limit.map { " LIMIT \($0)" } ?? ""
+            let references = try Paper.fetchAll(dbc, sql: """
+                SELECT papers.* FROM papers
+                JOIN citations ON citations.cited_id = papers.id
+                WHERE citations.citing_id = ?
+                ORDER BY (papers.year IS NULL), papers.year DESC, papers.title
+                """ + limitClause, arguments: [paperId])
+            let citations = try Paper.fetchAll(dbc, sql: """
+                SELECT papers.* FROM papers
+                JOIN citations ON citations.citing_id = papers.id
+                WHERE citations.cited_id = ?
+                ORDER BY (papers.year IS NULL), papers.year DESC, papers.title
+                """ + limitClause, arguments: [paperId])
+            return CitationLists(references: references, citations: citations)
+        }
+    }
+
     // MARK: - 自著被引用ネットワーク（→ docs/09 4.1節）
 
     /// 自著論文（is_own = 1）集合を中心とした被引用ネットワーク
