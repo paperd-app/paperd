@@ -37,6 +37,12 @@ public struct PaperdTools: Sendable {
             properties: [
                 "query": .object(["type": .string("string"), "description": .string("Search query (natural language allowed)")]),
                 "top_k": .object(["type": .string("integer"), "default": .number(10), "maximum": .number(50)]),
+                "mode": .object([
+                    "type": .string("string"),
+                    "enum": .array([.string("hybrid"), .string("keyword")]),
+                    "default": .string("hybrid"),
+                    "description": .string("Search mode. 'hybrid' (default) fuses FTS5 keyword and semantic results; 'keyword' uses FTS5 only (no semantic embedding) — useful for exact matches of names/symbols/code."),
+                ]),
             ],
             required: ["query"]
         ),
@@ -87,6 +93,21 @@ public struct PaperdTools: Sendable {
             ],
             required: ["paper_id", "content"]
         ),
+        toolDef(
+            name: "get_citations",
+            description: "Return a paper's references (works it cites) and citations (works that cite it) from the citation graph. Each entry includes 'in_library' — library papers can be passed by paper_id to other tools (get_fulltext, get_bibtex). If the citation cache is missing or stale, a background fetch is started and status is 'fetching' (retry in a few seconds).",
+            properties: [
+                "paper_id": .object(["type": .string("string")]),
+                "direction": .object([
+                    "type": .string("string"),
+                    "enum": .array([.string("references"), .string("citations"), .string("both")]),
+                    "default": .string("both"),
+                    "description": .string("'references' = works this paper cites; 'citations' = works that cite this paper; 'both' = both."),
+                ]),
+                "top_k": .object(["type": .string("integer"), "default": .number(50), "maximum": .number(200), "description": .string("Max entries per direction")]),
+            ],
+            required: ["paper_id"]
+        ),
         .object([
             "name": .string("apply_fulltext_patches"),
             "description": .string("Fix conversion errors in a paper's Markdown by applying patches (find→replace). Each find must occur exactly once in the current text. Before patching, always verify against the original PDF (pdf_path from get_paper_metadata) and never write content that is not in the original. The search index is rebuilt automatically after patching."),
@@ -134,6 +155,7 @@ public struct PaperdTools: Sendable {
             case "get_bibtex": return try getBibtex(arguments)
             case "get_fulltext": return try getFulltext(arguments)
             case "get_paper_metadata": return try getPaperMetadata(arguments)
+            case "get_citations": return try getCitations(arguments)
             case "add_paper": return try await addPaper(arguments)
             case "apply_fulltext_patches": return try applyFulltextPatches(arguments)
             case "add_note": return try addNote(arguments)
@@ -160,8 +182,10 @@ public struct PaperdTools: Sendable {
             return .error("query is required. Example: {\"query\": \"attention mechanism\"}")
         }
         let topK = min(args["top_k"]?.intValue ?? 10, 50)
+        // mode: keyword=FTS5のみ（embedderを渡さない＝アプリUIの「キーワードのみ」と同等 → docs/07 2.1節）
+        let mode = SearchMode(rawValue: args["mode"]?.stringValue ?? "hybrid") ?? .hybrid
 
-        let embedder = await embedderProvider()
+        let embedder = mode == .keywordOnly ? nil : await embedderProvider()
         let search = HybridSearch(db: store.db)
         let (results, semanticUsed) = try await search.search(query: query, topK: topK, embedder: embedder)
 
@@ -187,9 +211,12 @@ public struct PaperdTools: Sendable {
             }
             resultObjects.append(.object(object))
         }
-        var payload: [String: JSONValue] = ["results": .array(resultObjects)]
-        if !semanticUsed {
-            // 初回はワーカー起動待ちのためFTS5のみで応答（→ docs/07 4節）
+        var payload: [String: JSONValue] = [
+            "results": .array(resultObjects),
+            "mode": .string(mode.rawValue),
+        ]
+        if mode == .hybrid, !semanticUsed {
+            // hybrid指定でワーカー起動待ちのときだけFTS5応答を明示（keyword指定時は想定どおりなので付さない → docs/07 2.1, 4節）
             payload["semantic"] = .string("warming_up")
         }
         return ToolCallResult(text: Self.jsonString(.object(payload)))
@@ -360,6 +387,67 @@ public struct PaperdTools: Sendable {
         }
         let data = try JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys])
         return ToolCallResult(text: String(data: data, encoding: .utf8) ?? "{}")
+    }
+
+    // MARK: - get_citations（→ docs/07 2.8節）
+
+    func getCitations(_ args: [String: JSONValue]) throws -> ToolCallResult {
+        guard let paperId = args["paper_id"]?.stringValue else {
+            return .error("paper_id is required.")
+        }
+        guard let paper = try store.paper(id: paperId) else {
+            return .error("paper_id '\(paperId)' not found.")
+        }
+        let direction = args["direction"]?.stringValue ?? "both"
+        let topK = min(args["top_k"]?.intValue ?? 50, 200)
+
+        let citationStore = CitationStore(db: store.db)
+        let lists = try citationStore.citationLists(of: paperId, limit: topK)
+
+        // キャッシュが未取得/TTL超過なら取得本体はアプリへ委譲（add_paperと同じ非同期パターン → docs/07 2.8, 3節）
+        var status = "ok"
+        if try citationStore.isStale(paperId: paperId) {
+            if CitationFetcher.canFetch(for: paper) {
+                let queue = JobQueue(db: store.db)
+                _ = try queue.enqueueIfAbsent(kind: .refetchCitations, paperId: paperId, origin: .mcp)
+                #if os(macOS)
+                DistributedNotificationCenter.default().postNotificationName(
+                    Notification.Name("jp.paperd.jobs.enqueued"), object: nil, userInfo: nil, deliverImmediately: true)
+                #endif
+                status = "fetching"
+            } else if lists.references.isEmpty, lists.citations.isEmpty {
+                // 外部IDがなく引用情報を取得できない（→ docs/07 2.8節）
+                status = "unavailable"
+            }
+        }
+
+        var payload: [String: JSONValue] = [
+            "paper_id": .string(paperId),
+            "status": .string(status),
+        ]
+        if direction == "references" || direction == "both" {
+            payload["references"] = .array(lists.references.map { citationEntry($0) })
+        }
+        if direction == "citations" || direction == "both" {
+            payload["citations"] = .array(lists.citations.map { citationEntry($0) })
+        }
+        return ToolCallResult(text: Self.jsonString(.object(payload)))
+    }
+
+    /// 引用リストの1論文をMCP応答のJSONに変換（→ docs/07 2.8節）
+    func citationEntry(_ p: Paper) -> JSONValue {
+        let authors = (try? store.authors(of: p.id).map(\.displayName)) ?? []
+        var object: [String: JSONValue] = [
+            "paper_id": .string(p.id),
+            "title": .string(p.title),
+            "authors": .array(authors.map { .string($0) }),
+            "year": p.year.map { .number(Double($0)) } ?? .null,
+            "in_library": .bool(!p.isStub),
+        ]
+        if let doi = p.doi { object["doi"] = .string(doi) }
+        if let arxivId = p.arxivId { object["arxiv_id"] = .string(arxivId) }
+        if let venue = p.venue { object["venue"] = .string(venue) }
+        return .object(object)
     }
 
     // MARK: - apply_fulltext_patches（→ docs/07 2.6節）

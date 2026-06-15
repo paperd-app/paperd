@@ -51,7 +51,7 @@ struct MCPTests {
         #expect(none == nil)
     }
 
-    @Test("tools/listは7ツール")
+    @Test("tools/listは8ツール")
     func toolsList() async throws {
         let (server, _, root) = try makeServer()
         defer { cleanup(root) }
@@ -61,7 +61,7 @@ struct MCPTests {
             throw TestError("toolsがない")
         }
         let names = tools.compactMap { $0["name"]?.stringValue }
-        #expect(Set(names) == ["search_papers", "get_bibtex", "get_fulltext", "get_paper_metadata", "add_paper", "apply_fulltext_patches", "add_note"])
+        #expect(Set(names) == ["search_papers", "get_bibtex", "get_fulltext", "get_paper_metadata", "add_paper", "apply_fulltext_patches", "add_note", "get_citations"])
     }
 
     @Test("未知メソッドはmethod not found")
@@ -306,6 +306,119 @@ struct MCPTests {
         let (text, isError) = try await callTool(server, name: "search_papers", args: ["query": .string("attention")])
         #expect(!isError)
         #expect(text.contains("warming_up"), Comment(rawValue: text))
+    }
+
+    @Test("search_papers: mode=keywordはembedderがあってもFTS5のみ・warming_upを付けない")
+    func searchPapersKeywordMode() async throws {
+        // embedderは存在するが、mode=keywordなら使わない
+        let (server, store, root) = try makeServer(embedder: FakeEmbedder())
+        defer { cleanup(root) }
+        let paper = samplePaper()
+        try store.savePaper(paper, authors: sampleAuthors)
+        let pieces = [Chunker.Piece(sectionPath: "3. Method", text: "scaled dot product attention transformer", tokenCount: 6)]
+        try SearchIndex(db: store.db).indexPaper(
+            paperId: paper.id, pieces: pieces,
+            embeddings: pieces.map { FakeEmbedder.embed($0.text) })
+
+        let (text, isError) = try await callTool(server, name: "search_papers", args: [
+            "query": .string("attention transformer"), "mode": .string("keyword"),
+        ])
+        #expect(!isError, Comment(rawValue: text))
+        let json = try #require(try JSONSerialization.jsonObject(with: Data(text.utf8)) as? [String: Any])
+        #expect(json["mode"] as? String == "keyword")
+        #expect(json["semantic"] == nil, "keyword指定ではwarming_upを付けない")
+        let results = try #require(json["results"] as? [[String: Any]])
+        try #require(results.count == 1)
+        #expect(results[0]["match_type"] as? String == "keyword", Comment(rawValue: text))
+    }
+
+    @Test("get_citations: references/citationsをin_library付きで返す")
+    func getCitations() async throws {
+        let (server, store, root) = try makeServer()
+        defer { cleanup(root) }
+        let center = samplePaper()
+        try store.savePaper(center, authors: sampleAuthors)
+        // ライブラリ内の被引用元
+        let citer = samplePaper(title: "BERT", doi: "10.1/bert", arxivId: "1810.04805", year: 2018)
+        try store.savePaper(citer, authors: [])
+
+        let citations = CitationStore(db: store.db)
+        try citations.replaceEdges(
+            center: center.id,
+            references: [.init(title: "Neural MT by Jointly Learning", year: 2014, doi: "10.1/bahdanau")],
+            citations: [.init(title: "BERT", doi: "10.1/bert", arxivId: "1810.04805")],
+            source: .s2)
+
+        let (text, isError) = try await callTool(server, name: "get_citations", args: ["paper_id": .string(center.id)])
+        #expect(!isError, Comment(rawValue: text))
+        let json = try #require(try JSONSerialization.jsonObject(with: Data(text.utf8)) as? [String: Any])
+        #expect(json["status"] as? String == "ok", "新鮮なキャッシュ")
+        let refs = try #require(json["references"] as? [[String: Any]])
+        try #require(refs.count == 1)
+        #expect(refs[0]["title"] as? String == "Neural MT by Jointly Learning")
+        #expect(refs[0]["in_library"] as? Bool == false, "ライブラリ外はstub")
+        let cites = try #require(json["citations"] as? [[String: Any]])
+        try #require(cites.count == 1)
+        #expect(cites[0]["title"] as? String == "BERT")
+        #expect(cites[0]["in_library"] as? Bool == true, "ライブラリ内論文に解決される")
+        #expect(cites[0]["paper_id"] as? String == citer.id)
+    }
+
+    @Test("get_citations: direction指定でその方向だけ返す")
+    func getCitationsDirection() async throws {
+        let (server, store, root) = try makeServer()
+        defer { cleanup(root) }
+        let center = samplePaper()
+        try store.savePaper(center, authors: [])
+        let citations = CitationStore(db: store.db)
+        try citations.replaceEdges(
+            center: center.id,
+            references: [.init(title: "Ref", year: 2010)],
+            citations: [.init(title: "Citer", year: 2020)],
+            source: .s2)
+
+        let (text, _) = try await callTool(server, name: "get_citations", args: [
+            "paper_id": .string(center.id), "direction": .string("references"),
+        ])
+        let json = try #require(try JSONSerialization.jsonObject(with: Data(text.utf8)) as? [String: Any])
+        #expect(json["references"] != nil)
+        #expect(json["citations"] == nil, "citations方向は返さない")
+    }
+
+    @Test("get_citations: キャッシュ未取得かつ外部IDありはrefetchジョブ投入 + status=fetching")
+    func getCitationsFetching() async throws {
+        let (server, store, root) = try makeServer()
+        defer { cleanup(root) }
+        let center = samplePaper() // doi / arxiv_id を持つ
+        try store.savePaper(center, authors: [])
+
+        let (text, isError) = try await callTool(server, name: "get_citations", args: ["paper_id": .string(center.id)])
+        #expect(!isError, Comment(rawValue: text))
+        let json = try #require(try JSONSerialization.jsonObject(with: Data(text.utf8)) as? [String: Any])
+        #expect(json["status"] as? String == "fetching", Comment(rawValue: text))
+        let jobs = try JobQueue(db: store.db).jobs(status: .queued)
+        #expect(jobs.contains { $0.kind == "refetch_citations" && $0.origin == "mcp" }, "取得ジョブが投入される")
+    }
+
+    @Test("get_citations: 外部IDなし・エッジなしはunavailable（ジョブ投入なし）")
+    func getCitationsUnavailable() async throws {
+        let (server, store, root) = try makeServer()
+        defer { cleanup(root) }
+        let local = samplePaper(title: "Local only", doi: nil, arxivId: nil, booktitle: nil)
+        try store.savePaper(local, authors: [])
+
+        let (text, _) = try await callTool(server, name: "get_citations", args: ["paper_id": .string(local.id)])
+        let json = try #require(try JSONSerialization.jsonObject(with: Data(text.utf8)) as? [String: Any])
+        #expect(json["status"] as? String == "unavailable", Comment(rawValue: text))
+        #expect(try JobQueue(db: store.db).jobs(status: .queued).isEmpty, "取得できないのでジョブは投入しない")
+    }
+
+    @Test("get_citations: 存在しない論文はエラー")
+    func getCitationsMissing() async throws {
+        let (server, _, root) = try makeServer()
+        defer { cleanup(root) }
+        let (text, isError) = try await callTool(server, name: "get_citations", args: ["paper_id": .string("nope")])
+        #expect(isError, Comment(rawValue: text))
     }
 
 }

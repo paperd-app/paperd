@@ -122,6 +122,31 @@ struct CitationStoreTests {
         #expect(twoHop.nodes.count == 3)
         #expect(twoHop.edges.count == 2)
     }
+
+    @Test("citationLists: 参考文献と被引用を方向別に返す（→ docs/07 2.8節）")
+    func citationLists() throws {
+        let (store, root) = try makeTempLibrary()
+        defer { cleanup(root) }
+        let center = samplePaper()
+        try store.savePaper(center, authors: sampleAuthors)
+        let citations = CitationStore(db: store.db)
+        try citations.replaceEdges(
+            center: center.id,
+            references: [.init(title: "Cited A", year: 2014), .init(title: "Cited B", year: 2010)],
+            citations: [.init(title: "Citer X", year: 2019)],
+            source: .s2)
+
+        let lists = try citations.citationLists(of: center.id)
+        #expect(Set(lists.references.map(\.title)) == ["Cited A", "Cited B"])
+        #expect(lists.references.allSatisfy(\.isStub))
+        #expect(lists.citations.map(\.title) == ["Citer X"])
+        // 年の降順（年なしは末尾）
+        #expect(lists.references.first?.title == "Cited A", "年の新しい順")
+
+        // limitは各方向に効く
+        let limited = try citations.citationLists(of: center.id, limit: 1)
+        #expect(limited.references.count == 1)
+    }
 }
 
 @Suite("CitationFetcher")

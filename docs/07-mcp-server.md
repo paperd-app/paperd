@@ -10,7 +10,7 @@
   （読み手はAI。国際配布でも単一言語でよい → [09](09-ui.md) 10節）。本章のJSON例の説明文は
   設計書の可読性のため日本語で記すが、**実装では同内容の英語**とする
 
-## 2. v1 ツール定義（6つ）
+## 2. ツール定義（8つ）
 
 ### 2.1 search_papers — ハイブリッド検索
 
@@ -24,12 +24,22 @@
     "type": "object",
     "properties": {
       "query":      {"type": "string", "description": "検索クエリ（自然言語可）"},
-      "top_k":      {"type": "integer", "default": 10, "maximum": 50}
+      "top_k":      {"type": "integer", "default": 10, "maximum": 50},
+      "mode":       {"type": "string", "enum": ["hybrid", "keyword"], "default": "hybrid",
+                     "description": "検索モード。hybrid=FTS5+semantic、keyword=FTS5のみ（semantic embeddingを使わない）"}
     },
     "required": ["query"]
   }
 }
 ```
+
+- **mode**: 既定は `hybrid`（semantic + キーワードのRRF統合）。`keyword` を指定すると semantic を使わず
+  FTS5のみで検索する（アプリUIの「キーワードのみ」切替と同等 → [09](09-ui.md)。固有名詞・式・コード片の
+  完全一致を狙うときや、ワーカー起動コスト（4節）を避けたいときに使う）。実装はアプリと同じく
+  「embedderを渡すか否か」で切り替える（`mode=keyword` のときはクエリembeddingを生成しない）
+- 応答末尾に `"mode"` で実際に使われたモードを返す。`hybrid` 指定でもワーカー未起動なら FTS5 のみで
+  即時応答し、`"semantic": "warming_up"` を付す（4節）。`keyword` 指定時は `warming_up` を付さない
+  （semanticを使わないのは想定どおりのため）
 
 出力例:
 
@@ -216,13 +226,66 @@ PDF→Markdown変換の意味的な誤り（上付き文字の潰れ・グリフ
 - 追記後は `reindex` ジョブを投入し、ノートが全文検索の対象になる（→ [06](06-search-rag.md) 2節）
 - 用途: 文献調査スキル（5.1節）の調査メモ保存、要約の永続化
 
+### 2.8 get_citations — 引用関係の取得
+
+論文の引用グラフ（→ [08](08-citation-graph.md)）から、**参考文献（その論文が引用している文献）**と
+**被引用（その論文を引用している文献）**を取得する。AIエージェントが「この論文の参考文献は？」
+「誰がこの論文を引用している？」に答えたり、関連研究をたどるために使う。
+
+```json
+{
+  "name": "get_citations",
+  "description": "論文の参考文献（references: その論文が引用する文献）と被引用（citations: その論文を引用する文献）を返す。各文献にはライブラリ内かどうか（in_library）が付き、ライブラリ内のものは paper_id で他ツール（get_fulltext等）に渡せる。",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "paper_id":  {"type": "string"},
+      "direction": {"type": "string", "enum": ["references", "citations", "both"], "default": "both",
+                    "description": "references=その論文が引用する文献、citations=その論文を引用する文献、both=両方"},
+      "top_k":     {"type": "integer", "default": 50, "maximum": 200, "description": "各方向の最大件数"}
+    },
+    "required": ["paper_id"]
+  }
+}
+```
+
+出力例:
+
+```json
+{
+  "paper_id": "8f14e45f-...",
+  "references": [
+    {"paper_id": "a1b2-...", "title": "Neural Machine Translation by Jointly Learning...",
+     "authors": ["Dzmitry Bahdanau"], "year": 2014, "doi": "10.48550/arXiv.1409.0473",
+     "in_library": true}
+  ],
+  "citations": [
+    {"paper_id": "c3d4-...", "title": "BERT: Pre-training of Deep Bidirectional...",
+     "authors": ["Jacob Devlin"], "year": 2018, "in_library": false}
+  ],
+  "status": "fetching"
+}
+```
+
+- 引用エッジは引用グラフのキャッシュ（`citations` テーブル → [08](08-citation-graph.md) 3節）から読む。
+  ライブラリ外の文献は stub 行として返り、`in_library: false`（PDF・全文は持たない）
+- **未取得・TTL超過時の自動投入**: 中心論文の引用エッジが未取得、またはTTL超過（[08](08-citation-graph.md) 3節）で、
+  かつ外部ID（S2 / DOI / arXiv / OpenAlex）を持つ場合は `kind = refetch_citations`, `origin = 'mcp'` の
+  ジョブを投入し、応答に `"status": "fetching"` を付す（add_paper と同じ非同期パターン → 3節, [10](10-roadmap-risks.md) R3）。
+  アプリがバックグラウンドで S2 / OpenAlex から取得するので、エージェントには「数秒後に再取得を」と促す。
+  キャッシュが新鮮なら `"status": "ok"`
+- 引用情報を持てない論文（外部IDなし）はジョブを投入せず `"status": "unavailable"` を返す
+
 
 ## 3. 読み書きの分離
 
 | 操作 | 経路 |
 |---|---|
-| 読み取り（search / bibtex / fulltext / metadata） | WALモードの同一 `library.sqlite` を直接読む。アプリの書き込みと並行可能。fulltextは有効Markdown（`paper.corrected.md` 優先 → [05](05-pdf-conversion.md) 5.2節）を返す |
-| 書き込み（add_paper / apply_fulltext_patches） | `papers` 行 + `jobs` 行への**短いINSERT**と修正ファイルの書き出しのみ。長時間処理（PDF取得・変換・embedding・再インデックス）はすべてアプリ側JobRunnerが実行 |
+| 読み取り（search / bibtex / fulltext / metadata / get_citations） | WALモードの同一 `library.sqlite` を直接読む。アプリの書き込みと並行可能。fulltextは有効Markdown（`paper.corrected.md` 優先 → [05](05-pdf-conversion.md) 5.2節）を返す |
+| 書き込み（add_paper / apply_fulltext_patches / add_note） | `papers` 行 + `jobs` 行への**短いINSERT**と修正ファイルの書き出しのみ。長時間処理（PDF取得・変換・embedding・再インデックス）はすべてアプリ側JobRunnerが実行 |
+
+`get_citations` は読み取りだが、引用キャッシュが未取得／TTL超過のときだけ `refetch_citations` ジョブを
+**短くINSERT**する（取得本体はアプリ側 → 2.8節）。この点は add_paper と同じ非同期パターン。
 
 MCPサーバは取り込みパイプラインを自前で走らせない。これにより、2プロセスが同じ論文を同時処理する競合が構造的に発生しない（→ [01](01-architecture.md) 5節）。
 

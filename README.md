@@ -36,7 +36,7 @@ Sources/
     Jobs/                 #   Job queue with exponential backoff (→ docs/04 §7)
     Ingest/               #   6-stage ingest pipeline, JobRunner actor (→ docs/04)
     Worker/               #   Python worker HTTP client, worker.lock (→ docs/05, 01 §3)
-  PaperdMCPKit/           # MCP server logic (hand-rolled stdio JSON-RPC + 7 tools → docs/07)
+  PaperdMCPKit/           # MCP server logic (hand-rolled stdio JSON-RPC + 8 tools → docs/07)
   PaperdMCP/              # paperd-mcp CLI
   Paperd/                 # SwiftUI app (3-pane UI, search, citation graph, settings)
 Tests/PaperdTests/        # Swift tests (Swift Testing)
@@ -119,7 +119,7 @@ MCP output is read by AI clients.
 | M2 Ingest | 4-source metadata resolution / job queue / 6-stage pipeline / duplicate detection (DOI, arXiv, pdf_hash) / local-PDF resolution (convert-first + Crossref bibliographic search) / JobRunner | ✅ |
 | M3 AI processing | Worker HTTP API / Docling & bge-m3 engines (lazy load) / chunking | ✅ |
 | M4 Search | Hybrid search (FTS5 + KNN + RRF) / search UI (semantic when the worker is up) / PDF viewer | ✅ |
-| M5 MCP | paperd-mcp 7 tools (search / bibtex / fulltext / metadata / add_paper / add_note / **apply_fulltext_patches**) / stdio JSON-RPC | ✅ |
+| M5 MCP | paperd-mcp 8 tools (search [hybrid/keyword mode] / bibtex / fulltext / metadata / **get_citations** / add_paper / add_note / **apply_fulltext_patches**) / stdio JSON-RPC | ✅ |
 | Conversion quality | Mojibake-detection heuristics (conversion_warnings badge) / high-accuracy reconversion (force_ocr + formula_enrichment, reconvert job) / **LLM correction workflow via MCP** (paper.corrected.md overlay + history + automatic reindex → docs/05 §4.1, §5; docs/07 §2.6) | ✅ |
 | M6 Periphery | Citation graph (refetch_citations job / stub papers / TTL / ego-network view / stub promotion) / **Markdown tab (conversion review — the text AI actually reads → docs/09 §4)** / notes UI / ingest UI (+ dialog, PDF drop, file/folder picker) / job progress UI / settings (MCP snippet, worker setup) / **favorites & own-paper flags + own-papers citation network (rich view → docs/09 §4.1)** / **worker auto-start + status-bar indicators + MCP onboarding & last-access display (→ docs/07 §6, docs/09 §9)** / **distribution prep: bundled worker + auto-deploy, uv discovery (GUI PATH issue), release.sh (signing/notarization), index-rebuild menu, worker stop on quit, process-level MCP test** | ✅ |
 
