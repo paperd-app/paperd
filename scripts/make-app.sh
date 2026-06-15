@@ -27,8 +27,9 @@ cp "$BIN/paperd-mcp" "$APP/Contents/Helpers/paperd-mcp"
 if [ -f design/AppIcon.icns ]; then
   cp design/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 fi
-# Claudeスキルの同梱（設定 > 連携 からインストール → docs/07 6.1節）
+# Claudeスキル・エージェントの同梱（設定 > 連携 からインストール → docs/07 6.1, 6.2節）
 cp -R skills "$APP/Contents/Resources/skills"
+cp -R agents "$APP/Contents/Resources/agents"
 # ワーカーソースの同梱（配布時は初回起動でApplication Supportへ展開 → docs/01 3.3節）
 mkdir -p "$APP/Contents/Resources/worker"
 cp worker/pyproject.toml worker/uv.lock "$APP/Contents/Resources/worker/"

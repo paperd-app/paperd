@@ -6,12 +6,12 @@ version: 2
 
 # paperd Conversion-Fix Workflow
 
-Safely fix conversion errors in a paper's Markdown using paperd MCP's `apply_fulltext_patches`.
+Safely fix conversion errors in a paper's Markdown using paperd MCP's `paperd:apply_fulltext_patches`.
 
 ## Steps
 
-1. Get the target paper's `pdf_path` / `markdown_path` / `conversion_warnings` with `get_paper_metadata`.
-2. Read the Markdown with `get_fulltext` and list suspicious passages. Typical cases:
+1. Get the target paper's `pdf_path` / `markdown_path` / `conversion_warnings` with `paperd:get_paper_metadata`.
+2. Read the Markdown with `paperd:get_fulltext` and list suspicious passages. Typical cases:
    - Garbled characters: `¼` `½` (misrecognized ≈ or formulas), `(cid:123)`, stray Cyrillic characters (РЬТіОз ← PbTiO3)
    - Missing superscripts/subscripts: `10^3 Å` → `103 Å`
    - Broken formulas and chemical formulas
@@ -19,9 +19,9 @@ Safely fix conversion errors in a paper's Markdown using paperd MCP's `apply_ful
    original (this is the most important rule).
 4. Build the patches. Cut each `find` string long enough that it **occurs exactly once in the current text**
    (too short and it errors with multiple matches; include surrounding context to make it unique).
-5. Apply with `apply_fulltext_patches`. In `note`, record the justification for the fix (the relevant PDF page and location).
-6. Verify after applying with `get_fulltext` (fixes are reflected immediately in the effective Markdown,
-   including section-scoped reads). Only `search_papers` snippets lag until the search index is rebuilt
+5. Apply with `paperd:apply_fulltext_patches`. In `note`, record the justification for the fix (the relevant PDF page and location).
+6. Verify after applying with `paperd:get_fulltext` (fixes are reflected immediately in the effective Markdown,
+   including section-scoped reads). Only `paperd:search_papers` snippets lag until the search index is rebuilt
    (the app runs this in the background). The fix history is kept on the app side and the user can revert it.
 
 ## Rules

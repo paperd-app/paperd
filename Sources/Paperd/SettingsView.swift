@@ -93,6 +93,11 @@ struct SettingsView: View {
                 SkillInstallSection()
             }
 
+            // Claudeエージェント（文献調査オーケストレーションのサブエージェント → docs/07 6.2節, docs/12）
+            Section("Claudeエージェント") {
+                AgentInstallSection()
+            }
+
             // サンプルプロンプト（既定折りたたみ → docs/07 6.1節）
             Section {
                 DisclosureGroup("試してみる（Claudeに貼り付け）") {
@@ -346,6 +351,89 @@ struct SkillInstallSection: View {
             try installer.installAll()
             status = installer.overallStatus()
             message = String(localized: "インストールしました（\(SkillInstaller.defaultDestDir.path)）")
+        } catch {
+            message = nil
+        }
+    }
+}
+
+/// Claudeサブエージェント定義のインストール（→ docs/07 6.2節）。SkillInstallSection と対称。
+struct AgentInstallSection: View {
+    @State private var installer: AgentInstaller?
+    @State private var status: AgentInstaller.Status = .notInstalled
+    @State private var agents: [String] = []
+    @State private var showConfirm = false
+    @State private var message: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Claudeエージェント").font(.callout.weight(.medium))
+                Spacer()
+                statusBadge
+                Button(buttonTitle) { showConfirm = true }
+                    .controlSize(.small)
+                    .disabled(installer == nil || agents.isEmpty || status == .installed)
+            }
+            Text(agents.isEmpty
+                 ? String(localized: "（このビルドにはエージェントが同梱されていません）")
+                 : String(localized: "専門サブエージェント（\(agents.joined(separator: " / "))）をClaude Codeのエージェントとしてインストールします。"))
+                .font(.caption).foregroundStyle(.secondary)
+            if let message {
+                Label(message, systemImage: "checkmark.circle.fill")
+                    .font(.caption).foregroundStyle(.green)
+            }
+        }
+        .onAppear(perform: reload)
+        .confirmationDialog(
+            "\(agents.count) 個のエージェントをインストールしますか？",
+            isPresented: $showConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("インストール") { install() }
+            Button("キャンセル", role: .cancel) {}
+        } message: {
+            Text("~/.claude/agents/ に書き込まれます（既存の同名エージェントは上書き）。Claude Codeの次回起動から有効になります。")
+        }
+    }
+
+    var buttonTitle: String {
+        switch status {
+        case .notInstalled: return String(localized: "インストール…")
+        case .needsUpdate: return String(localized: "更新…")
+        case .installed: return String(localized: "インストール済み")
+        }
+    }
+
+    @ViewBuilder
+    var statusBadge: some View {
+        switch status {
+        case .installed:
+            Label("インストール済み", systemImage: "checkmark.circle.fill")
+                .font(.caption).foregroundStyle(.green)
+        case .needsUpdate:
+            Label("更新あり", systemImage: "arrow.triangle.2.circlepath")
+                .font(.caption).foregroundStyle(.orange)
+        case .notInstalled:
+            EmptyView()
+        }
+    }
+
+    func reload() {
+        guard let resources = Bundle.main.resourceURL else { return }
+        let source = resources.appendingPathComponent("agents")
+        let inst = AgentInstaller(sourceDir: source)
+        installer = inst
+        agents = inst.bundledAgents()
+        status = inst.overallStatus()
+    }
+
+    func install() {
+        guard let installer else { return }
+        do {
+            try installer.installAll()
+            status = installer.overallStatus()
+            message = String(localized: "インストールしました（\(AgentInstaller.defaultDestDir.path)）")
         } catch {
             message = nil
         }
