@@ -7,3 +7,6 @@ worker/__pycache__/
 worker/**/__pycache__/
 worker/.pytest_cache/
 *.pyc
+
+# scheduled-tasks MCP runtime lock (not a tracked artifact)
+.claude/scheduled_tasks.lock

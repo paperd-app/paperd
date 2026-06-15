@@ -22,7 +22,7 @@ graph TB
 
   subgraph Lib["~/PaperdLibrary"]
     FS[papers/uuid/<br/>paper.pdf · paper.md · meta.json]
-    DB[(index/library.sqlite<br/>WAL · FTS5 · sqlite-vec · jobs)]
+    DB[(index/library.sqlite<br/>WAL · FTS5 · vec_chunks · jobs)]
   end
 
   EXT[arXiv / Crossref / Semantic Scholar / OpenAlex]
@@ -185,7 +185,7 @@ Core / MCP / CLI / スキルの文字列は英語固定。ビルドへの影響:
 | 依存 | 用途 | ライセンス |
 |---|---|---|
 | GRDB.swift | SQLiteアクセス | MIT |
-| sqlite-vec | ベクトル検索（SQLite拡張） | MIT/Apache-2.0 |
+| sqlite-vec | （v1未使用）将来のベクトル検索候補。システムSQLiteが拡張をロードできないため、v1はSwift側ブルートフォースKNNで代替（→ [06](06-search-rag.md) 3節） | MIT/Apache-2.0 |
 | Docling | PDF→Markdown/JSON変換 | MIT |
 | sentence-transformers + bge-m3 | embedding生成 | Apache-2.0 / MIT |
 | FastAPI + uvicorn | ワーカーHTTPサーバ | MIT |
