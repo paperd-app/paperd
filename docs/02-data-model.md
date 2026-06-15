@@ -100,9 +100,13 @@ CREATE TABLE chunks (
 );
 CREATE INDEX idx_chunks_paper ON chunks(paper_id);
 
--- sqlite-vec 仮想テーブル。chunk.id と rowid を一致させる
-CREATE VIRTUAL TABLE vec_chunks USING vec0(
-  embedding float[1024]                  -- bge-m3: 1024次元
+-- ベクトルインデックス。chunks.id と rowid を一致させる。
+-- 当初設計はsqlite-vec仮想テーブルだが、システム同梱のSQLiteは拡張をロードできないため、
+-- v1は同一インターフェース（rowid = chunks.id）の通常テーブル + Swift側ブルートフォースKNN（VectorStore）で実装する。
+-- sqlite-vec導入時はこのテーブル定義とVectorStoreのみ差し替える（設計変更 2026-06。→ [06](06-search-rag.md) 3節）
+CREATE TABLE vec_chunks (
+  rowid     INTEGER PRIMARY KEY REFERENCES chunks(id) ON DELETE CASCADE,
+  embedding BLOB NOT NULL                -- bge-m3: float32 × 1024次元
 );
 
 -- FTS5 仮想テーブル（キーワード検索用）

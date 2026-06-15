@@ -31,6 +31,10 @@
 | オーバーラップ | 15% |
 | メタデータ | `section_path`（例: `"3. Method > 3.2 Training"`）を `chunks` 行に付与 |
 
+> 目安サイズはbge-m3トークナイザ基準だが、`chunks.token_count` に保存する値は近似（単語数と
+> 文字数÷4 の最大値。`Chunker.estimateTokens`）で、bge-m3トークナイザの厳密なトークン数ではない。
+> チャンク分割の判定に使う概算値であり、検索品質には影響しない。
+
 ルール:
 
 - **参考文献・謝辞セクションは除外**（検索ノイズの主因）
@@ -46,7 +50,7 @@
 
 | インデックス | 実体 | 方式 |
 |---|---|---|
-| ベクトル | `vec_chunks`（sqlite-vec） | ブルートフォースKNN。数千論文 ≒ 数十万チャンク規模なら全走査でも検索応答 < 1秒（→ [00](00-overview.md)）を満たし、ANN導入の複雑さを回避 |
+| ベクトル | `vec_chunks`（通常テーブル、float32 BLOB） | `VectorStore`（Swift）でブルートフォースKNN。当初設計のsqlite-vecはシステムSQLiteが拡張をロードできないため使わず、embeddingを `float[1024]` のBLOBとして保持し全走査する。数千論文 ≒ 数十万チャンク規模なら全走査でも検索応答 < 1秒（→ [00](00-overview.md)）を満たし、ANN導入の複雑さも回避できる。`rowid = chunks.id` の界面はsqlite-vec採用時と同一なので、将来は型の差し替えのみで移行できる（設計変更 2026-06） |
 | キーワード | `fts_chunks`（FTS5） | `porter unicode61` トークナイザ |
 
 `chunks.id` = `vec_chunks.rowid` = `fts_chunks.rowid` を一致させ、JOINなしで突き合わせる。

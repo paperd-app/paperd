@@ -9,7 +9,7 @@
 | M1: 基盤 | PaperdCore（DB / マイグレーション / meta.json入出力）、ライブラリレイアウト、最小UI（リスト表示） | PDFを手動配置してリスト表示できる |
 | M2: 取り込み | メタデータ解決（arXiv / Crossref / S2 / OpenAlex）、jobsキュー、JobRunner | arXiv ID / DOI / PDFドロップで書誌登録できる |
 | M3: AI処理 | Pythonワーカー（uvセットアップ / Docling / bge-m3）、チャンキング、インデックス投入 | 取り込んだ論文がMarkdown化・embedding済みになる |
-| M4: 検索 | ハイブリッド検索（sqlite-vec + FTS5 + RRF）、検索UI、PDFビューア | アプリ内でSemantic検索→PDF閲覧が通る |
+| M4: 検索 | ハイブリッド検索（ベクトルKNN + FTS5 + RRF）、検索UI、PDFビューア | アプリ内でSemantic検索→PDF閲覧が通る |
 | M5: MCP | paperd-mcp（5ツール）、設定スニペットUI | ClaudeからライブラリをSemantic検索・bibtex取得できる |
 | M6: 周辺機能 | 引用グラフ、ノート、初回セットアップウィザード磨き込み | v1リリース候補 |
 
@@ -33,7 +33,7 @@
 | R2 | Swift MCP SDKのメンテナンス停滞（公式が2025年末から流動的） | MCPサーバの保守困難 | 薄いアダプタ層でSDK差し替え可能に。最悪stdio JSON-RPC自前実装（[07](07-mcp-server.md)） |
 | R3 | MCPからの `add_paper` がアプリ非起動時に変換まで進まない | AIエージェントから見ると取り込みが「保留」になる | ツール応答でその旨を明示（[07](07-mcp-server.md)）。v2でワーカー自走オプション |
 | R4 | Semantic Scholar APIのレートリミット（キーなしでは厳しい） | 引用グラフ・メタデータ補完の遅延 | 設定でAPIキー登録を推奨。OpenAlexフォールバック（[08](08-citation-graph.md)） |
-| R5 | sqlite-vecのブルートフォースKNNのスケール上限 | 数十万チャンク超で検索が遅延 | 個人ライブラリ規模（数千論文）では問題なし。閾値超過時のLanceDB等への移行パスを未決事項として保持 |
+| R5 | ブルートフォースKNNのスケール上限 | 数十万チャンク超で検索が遅延 | 個人ライブラリ規模（数千論文）では問題なし。閾値超過時のsqlite-vec/LanceDB等への移行パスを未決事項として保持 |
 | R6 | 数式中心の検索品質（bge-m3は数式・記号に弱い） | 一部クエリの検索精度低下 | FTS5ハイブリッドで部分緩和。限界として明記（[06](06-search-rag.md)） |
 | R7 | Doclingの変換失敗（スキャンPDF・特殊レイアウト） | 一部論文が全文検索不可 | `pdf_only` ステータスで部分的成功を許容。OCRオプション・手動再試行（[04](04-ingest-pipeline.md), [05](05-pdf-conversion.md)） |
 

@@ -25,7 +25,7 @@
       notes.md                        # ユーザノート（存在しない場合あり）
       supplements/                    # 補助ファイル（Supplementary等。複数可・任意種別・存在しない場合あり）
   index/                              # 再構築可能領域（同期対象外）
-    library.sqlite                    # DB + FTS5 + sqlite-vec
+    library.sqlite                    # DB + FTS5 + ベクトルインデックス
     library.sqlite-wal / -shm
 
 ~/Library/Application Support/paperd/ # マシンローカル（同期しない）
