@@ -101,6 +101,16 @@
         }
       }
     },
+    "%lld 個のエージェントをインストールしますか？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install %lld agents?"
+          }
+        }
+      }
+    },
     "%lld 個のスキルをインストールしますか？": {
       "localizations": {
         "en": {
@@ -227,6 +237,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chicago (author–date)"
+          }
+        }
+      }
+    },
+    "Claudeエージェント": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Agents"
           }
         }
       }
@@ -557,6 +577,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Path to worker/ directory"
+          }
+        }
+      }
+    },
+    "~/.claude/agents/ に書き込まれます（既存の同名エージェントは上書き）。Claude Codeの次回起動から有効になります。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This will write to ~/.claude/agents/ (existing agents with the same name are overwritten). Takes effect the next time Claude Code starts."
           }
         }
       }
@@ -1941,6 +1971,16 @@
         }
       }
     },
+    "専門サブエージェント（%@）をClaude Codeのエージェントとしてインストールします。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installs specialized subagents (%@) as Claude Code agents."
+          }
+        }
+      }
+    },
     "文献調査・変換修正・執筆引用の定型ワークフロー（%@）をClaude Codeのスキルとしてインストールします。": {
       "localizations": {
         "en": {
@@ -2487,6 +2527,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "High-Accuracy Reconversion"
+          }
+        }
+      }
+    },
+    "（このビルドにはエージェントが同梱されていません）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(No agents are bundled with this build)"
           }
         }
       }

@@ -41,7 +41,8 @@ Sources/
   Paperd/                 # SwiftUI app (3-pane UI, search, citation graph, settings)
 Tests/PaperdTests/        # Swift tests (Swift Testing)
 worker/                   # Python worker (FastAPI / Docling / bge-m3 → docs/05)
-skills/                   # Bundled Claude skills (installable from Settings)
+skills/                   # Bundled Claude skills (installable from Settings → ~/.claude/skills)
+agents/                   # Bundled Claude subagents for research orchestration (installable → ~/.claude/agents, → docs/12)
 docs/                     # Design docs (Japanese)
 ```
 

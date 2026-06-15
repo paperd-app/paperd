@@ -11,12 +11,12 @@ For the user's manuscript (paragraphs, claims, bullet points), find supporting e
 ## Steps
 
 1. Break the manuscript down into individual claims.
-2. For each claim, search the library with `search_papers` (using both a paraphrase of the claim and keywords).
-3. For candidate papers, check the relevant passages with `get_fulltext` (with a section specified) and verify
+2. For each claim, search the library with `paperd:search_papers` (using both a paraphrase of the claim and keywords).
+3. For candidate papers, check the relevant passages with `paperd:get_fulltext` (with a section specified) and verify
    that they **actually support the claim**. Do not judge from the abstract alone. If a paper does not support
    the claim, report honestly that no supporting evidence exists in the library.
 4. Citation output:
-   - For LaTeX manuscripts, fetch entries with `get_bibtex` and present the text with `\cite{key}` inserted at the claim's position
+   - For LaTeX manuscripts, fetch entries with `paperd:get_bibtex` and present the text with `\cite{key}` inserted at the claim's position
    - Otherwise, insert author-year citations (e.g. (Vaswani et al., 2017)) and append a reference list at the end
 5. For claims with no suitable reference in the library, state this explicitly (if searching the web for papers,
    follow the paperd-research skill's rules for adding them).
@@ -24,4 +24,4 @@ For the user's manuscript (paragraphs, claims, bullet points), find supporting e
 ## Rules
 
 - Every citation must be verified against the full text (never cite just because "the title looks right")
-- Use `get_bibtex` output as-is for BibTeX (do not invent keys or fields)
+- Use `paperd:get_bibtex` output as-is for BibTeX (do not invent keys or fields)
