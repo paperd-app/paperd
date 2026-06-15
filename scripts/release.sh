@@ -56,7 +56,7 @@ cask "paperd" do
 
   # Pythonワーカーの実行に必要（→ docs/01 3.3節）
   depends_on formula: "uv"
-  depends_on macos: ">= :sonoma"
+  depends_on macos: :sonoma
 
   app "Paperd.app"
 
