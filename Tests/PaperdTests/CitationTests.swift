@@ -138,7 +138,8 @@ struct CitationStoreTests {
 
         let lists = try citations.citationLists(of: center.id)
         #expect(Set(lists.references.map(\.title)) == ["Cited A", "Cited B"])
-        #expect(lists.references.allSatisfy(\.isStub))
+        let allReferencesStub = lists.references.allSatisfy(\.isStub)
+        #expect(allReferencesStub)
         #expect(lists.citations.map(\.title) == ["Citer X"])
         // 年の降順（年なしは末尾）
         #expect(lists.references.first?.title == "Cited A", "年の新しい順")
