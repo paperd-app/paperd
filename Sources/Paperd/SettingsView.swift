@@ -8,7 +8,6 @@ struct SettingsView: View {
     @EnvironmentObject var model: AppModel
     @AppStorage("mailto") private var mailto = ""
     @AppStorage("s2APIKey") private var s2APIKey = ""
-    @AppStorage("workerDir") private var workerDir = ""
     @AppStorage("autoStartWorker") private var autoStartWorker = true
     @State private var lastAccessText: String?
 
@@ -142,21 +141,21 @@ struct SettingsView: View {
                     .font(.caption).foregroundStyle(.secondary)
             }
             Section("セットアップ") {
-                // uvの検出状態（GUIアプリのPATH問題対策 → docs/01 3.3節）
-                if UVLocator.find() == nil {
+                // Python 3.11+ の検出状態（GUIアプリのPATH問題対策 → docs/01 3.3節）
+                if PythonLocator.find() == nil {
                     HStack(spacing: 6) {
                         Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
-                        Text("uv が見つかりません。ワーカーの実行にはuvが必要です。")
+                        Text("Python 3.11+ が見つかりません。ワーカーの実行に必要です。")
                             .font(.callout)
                         Spacer()
                         Button("インストールコマンドをコピー") {
                             NSPasteboard.general.clearContents()
-                            NSPasteboard.general.setString("brew install uv", forType: .string)
+                            NSPasteboard.general.setString("brew install python@3.11", forType: .string)
                         }
                         .controlSize(.small)
                     }
                 }
-                WorkerSetupView(workerDir: $workerDir)
+                WorkerSetupView()
             }
         }
         .formStyle(.grouped)
@@ -164,27 +163,31 @@ struct SettingsView: View {
 }
 
 /// Pythonワーカーのセットアップと起動（→ docs/01 3.3節の最小実装）。
+/// worker パスは AppModel が起動時に 1 回解決し、ここでは EnvironmentObject から参照する。
+/// セットアップ手順は PaperdCore の `WorkerEnvironmentSetup` に集約。
 /// フルのウィザード（進捗バー・中断再開）はv1リリース前の磨き込み課題。
 struct WorkerSetupView: View {
-    @Binding var workerDir: String
+    @EnvironmentObject var model: AppModel
     @State private var log = ""
     @State private var isRunning = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                TextField("worker/ ディレクトリのパス", text: $workerDir)
-                Button("選択…") { pickDirectory() }
+            LabeledContent("worker パス") {
+                Text(model.workerDirectory?.path ?? String(localized: "未検出"))
+                    .font(.caption.monospaced())
+                    .textSelection(.enabled)
+                    .foregroundStyle(model.workerDirectory == nil ? .secondary : .primary)
             }
             HStack(spacing: 8) {
-                Button("環境構築（uv sync --extra ml）") {
-                    run(["uv", "sync", "--extra", "ml"])
+                Button("環境構築（venv + pip install）") {
+                    setupVenv()
                 }
-                .disabled(isRunning || workerDir.isEmpty)
+                .disabled(isRunning || model.workerDirectory == nil)
                 Button("ワーカーを起動") {
                     startWorker()
                 }
-                .disabled(isRunning || workerDir.isEmpty)
+                .disabled(isRunning || model.workerDirectory == nil)
                 if isRunning { ProgressView().controlSize(.small) }
             }
             Text("環境構築はDocling + PyTorchで2〜3GBのダウンロードを伴います。embeddingモデル（bge-m3、約2GB）は初回利用時に取得されます。")
@@ -200,41 +203,31 @@ struct WorkerSetupView: View {
         }
     }
 
-    func pickDirectory() {
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        if panel.runModal() == .OK, let url = panel.url {
-            workerDir = url.path
+    /// `WorkerEnvironmentSetup.run()` を呼んでログをストリーミング表示
+    func setupVenv() {
+        guard let workerDir = model.workerDirectory else {
+            log = String(localized: "❌ worker パスが解決できません。\n")
+            return
         }
-    }
-
-    func run(_ command: [String]) {
+        guard let python = PythonLocator.find() else {
+            log = String(localized: "❌ Python 3.11+ が見つかりません。上の案内に従ってインストールしてください。\n")
+            return
+        }
+        let setup = WorkerEnvironmentSetup(workerDir: workerDir, python: python)
         isRunning = true
-        log = "$ \(command.joined(separator: " "))\n"
-        let dir = workerDir
+        log = "$ Python: \(python)\n$ worker: \(workerDir.path)\n"
         Task.detached {
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-            process.arguments = command
-            process.currentDirectoryURL = URL(fileURLWithPath: dir)
-            let pipe = Pipe()
-            process.standardOutput = pipe
-            process.standardError = pipe
             do {
-                try process.run()
-                for try await line in pipe.fileHandleForReading.bytes.lines {
-                    await MainActor.run { log += line + "\n" }
+                try await setup.run { line in
+                    Task { @MainActor in log += line + "\n" }
                 }
-                process.waitUntilExit()
-                let status = process.terminationStatus
                 await MainActor.run {
-                    log += status == 0 ? String(localized: "✅ 完了\n") : String(localized: "❌ 終了コード \(Int(status))\n")
+                    log += String(localized: "✅ 完了\n")
                     isRunning = false
                 }
             } catch {
                 await MainActor.run {
-                    log += "❌ \(error)\n"
+                    log += "❌ \(error.localizedDescription)\n"
                     isRunning = false
                 }
             }
@@ -243,12 +236,15 @@ struct WorkerSetupView: View {
 
     /// worker.lock経由の常駐起動。アプリ終了後もMCPから再利用される
     func startWorker() {
-        let dir = workerDir
+        guard let workerDir = model.workerDirectory else {
+            log = String(localized: "❌ worker パスが解決できません。\n")
+            return
+        }
         log = String(localized: "ワーカーを起動中…\n")
         isRunning = true
         Task.detached {
             do {
-                let manager = WorkerProcessManager(workerDirectory: URL(fileURLWithPath: dir))
+                let manager = WorkerProcessManager(workerDirectory: workerDir)
                 let client = try await manager.startOrReuseVerified()
                 let health = try await client.health()
                 await MainActor.run {

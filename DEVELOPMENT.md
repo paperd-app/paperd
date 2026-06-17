@@ -53,10 +53,11 @@ Xcode is required (Swift Testing is unavailable with Command Line Tools alone, s
 
 ```sh
 cd worker
-uv sync                   # development (lightweight: FastAPI + pytest only)
-uv run pytest             # tests
-uv sync --extra ml        # production (Docling + sentence-transformers, 2–3 GB)
-uv run paperd-worker --token SECRET --port 0   # start ({"port": N} is printed to stdout)
+python3.11 -m venv .venv                                # create venv (Python 3.11+ required)
+.venv/bin/pip install -e ".[dev]"                       # development (lightweight: FastAPI + pytest only)
+.venv/bin/pytest                                        # tests
+.venv/bin/pip install -e ".[ml]"                        # production (Docling + sentence-transformers, 2–3 GB)
+.venv/bin/python -m paperd_worker --token SECRET --port 0   # start ({"port": N} is printed to stdout)
 ```
 
 ## MCP server (development)
@@ -74,9 +75,13 @@ Environment variables:
 | Variable | Meaning |
 |---|---|
 | `PAPERD_LIBRARY` | Library location (default `~/PaperdLibrary`) |
-| `PAPERD_WORKER_DIR` | Location of `worker/` (for on-demand worker startup for semantic search) |
 | `PAPERD_MAILTO` | Email for the Crossref / OpenAlex polite pools |
 | `PAPERD_S2_API_KEY` | Semantic Scholar API key (optional) |
+
+The worker directory is resolved automatically by `WorkerLocator.resolve()`
+(dev-tree `worker/` next to the binary → bundled `Resources/worker` deployed
+to Application Support → existing Application Support deployment). No env
+var or path picker is involved.
 
 Example registration for Claude Code (`.mcp.json`):
 
@@ -85,8 +90,7 @@ Example registration for Claude Code (`.mcp.json`):
   "mcpServers": {
     "paperd": {
       "type": "stdio",
-      "command": "/path/to/paperd_test/.build/debug/paperd-mcp",
-      "env": {"PAPERD_WORKER_DIR": "/path/to/paperd_test/worker"}
+      "command": "/path/to/paperd_test/.build/debug/paperd-mcp"
     }
   }
 }

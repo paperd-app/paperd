@@ -6,10 +6,13 @@ embedding generation (BAAI/bge-m3) over localhost HTTP. See
 
 ## Setup
 
+Requires Python 3.11+ (`brew install python@3.11` if missing).
+
 ```sh
-uv sync                  # base + dev deps (lightweight, enough for tests)
-uv sync --extra ml       # additionally install docling + sentence-transformers
-                         # (multi-GB with PyTorch; needed for real conversion/embedding)
+python3.11 -m venv .venv                  # create the local virtualenv
+.venv/bin/pip install -e ".[dev]"         # base + dev deps (lightweight, enough for tests)
+.venv/bin/pip install -e ".[ml]"          # additionally install docling + sentence-transformers
+                                          # (multi-GB with PyTorch; needed for real conversion/embedding)
 ```
 
 Without the `ml` extra the server runs fine, but `/convert` jobs fail and
@@ -18,7 +21,7 @@ Without the `ml` extra the server runs fine, but `/convert` jobs fail and
 ## Running
 
 ```sh
-uv run paperd-worker --token <secret> --port 0 \
+.venv/bin/python -m paperd_worker --token <secret> --port 0 \
     [--lock-file <path>] [--idle-timeout <sec>]
 ```
 
@@ -56,7 +59,7 @@ until it finishes.
 ## Tests
 
 ```sh
-uv run pytest
+.venv/bin/pytest
 ```
 
 Tests use fake engines, so the `ml` extra is not required.

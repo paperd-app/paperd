@@ -29,29 +29,28 @@ do {
     exit(0)
 }
 
-// semantic検索のクエリembedding: worker.lock経由で既存ワーカーを再利用、
-// なければオンデマンド起動（アイドル10分で自動終了 → docs/01 3.2節, docs/07 4節）。
-let embedderProvider: @Sendable () async -> QueryEmbedder? = {
-    if let client = WorkerLock.reusableClient() {
-        return client
-    }
-    let workerDir = ProcessInfo.processInfo.environment["PAPERD_WORKER_DIR"]
-        .map { URL(fileURLWithPath: ($0 as NSString).expandingTildeInPath) }
-    guard let workerDir, FileManager.default.fileExists(atPath: workerDir.path) else {
-        return nil  // ワーカー未セットアップ → FTS5のみで応答（→ docs/07 5節）
-    }
-    let manager = WorkerProcessManager(workerDirectory: workerDir)
-    return try? await manager.startOrReuseVerified(idleTimeout: 600)
-}
-
 let resolver = MetadataResolver.live(
     mailto: ProcessInfo.processInfo.environment["PAPERD_MAILTO"],
     s2APIKey: ProcessInfo.processInfo.environment["PAPERD_S2_API_KEY"]
 )
 
+// 起動時に 1 回だけ workerDir を解決（必要なら配布バンドルから App Support へ展開する）。
+// 失敗しても MCP 自体は起動して FTS5 のみで応答する（→ docs/07 5節）
+let workerDirectory: URL? = (try? WorkerLocator.locateOrDeploy()) ?? WorkerLocator.locate()
+
 let tools = PaperdTools(
     store: store,
-    embedderProvider: embedderProvider,
+    // semantic検索のクエリembedding: worker.lock経由で既存ワーカーを再利用、
+    // なければ起動時にキャプチャした workerDir でオンデマンド起動（アイドル10分で自動終了
+    // → docs/01 3.2節, docs/07 4節）
+    embedderProvider: {
+        if let client = WorkerLock.reusableClient() { return client }
+        guard let workerDir = workerDirectory else {
+            return nil  // ワーカー未セットアップ → FTS5のみで応答
+        }
+        let manager = WorkerProcessManager(workerDirectory: workerDir)
+        return try? await manager.startOrReuseVerified(idleTimeout: 600)
+    },
     resolver: { try await resolver.resolve($0) },
     accessLog: MCPAccessLog()  // 最終アクセスの可視化（→ docs/07 6節）
 )

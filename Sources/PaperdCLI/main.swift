@@ -11,7 +11,8 @@ import PaperdCore
 //   paperd-cli process              キューが空になるまでジョブを実行（実ワーカー使用）
 //   paperd-cli search <query>       ハイブリッド検索（ワーカーが生きていればsemantic併用）
 //
-// 環境変数: PAPERD_LIBRARY / PAPERD_WORKER_DIR / PAPERD_MAILTO / PAPERD_S2_API_KEY
+// 環境変数: PAPERD_LIBRARY / PAPERD_MAILTO / PAPERD_S2_API_KEY
+// worker パスは WorkerLocator が自動解決（→ docs/01 3.3節）
 
 let env = ProcessInfo.processInfo.environment
 let libraryRoot = env["PAPERD_LIBRARY"].map { URL(fileURLWithPath: ($0 as NSString).expandingTildeInPath) }
@@ -40,7 +41,8 @@ func makeRunner() -> JobRunner {
     let mailto = env["PAPERD_MAILTO"]
     let s2Key = env["PAPERD_S2_API_KEY"]
     let resolver = MetadataResolver.live(mailto: mailto, s2APIKey: s2Key)
-    let workerDir = env["PAPERD_WORKER_DIR"].map { URL(fileURLWithPath: ($0 as NSString).expandingTildeInPath) }
+    // 起動時に 1 回だけ workerDir を解決（必要なら配布バンドルから展開）
+    let workerDir: URL? = (try? WorkerLocator.locateOrDeploy()) ?? WorkerLocator.locate()
     let executors = LiveStageExecutors(resolver: resolver, unpaywallEmail: mailto) {
         // 必ずバージョン照合を通す（旧ワーカー残留時は自動で入れ替え → docs/01 3.2節）
         if let workerDir {
@@ -52,12 +54,12 @@ func makeRunner() -> JobRunner {
             }
             throw WorkerClient.WorkerAPIError(
                 code: "MODEL_NOT_READY",
-                message: "The running worker is an outdated version. Set PAPERD_WORKER_DIR to replace it automatically",
+                message: "The running worker is an outdated version and no worker source is reachable to replace it.",
                 statusCode: 0)
         }
         throw WorkerClient.WorkerAPIError(
             code: "MODEL_NOT_READY",
-            message: "Worker is not running. Set PAPERD_WORKER_DIR or start the worker first",
+            message: "Worker is not running and no worker source is reachable. Run setup from the app's Settings > Worker.",
             statusCode: 0)
     }
     let pipeline = IngestPipeline(store: store, queue: queue, executors: executors)

@@ -13,12 +13,14 @@
 ```sh
 swift build               # 全ターゲット（要Xcode）
 swift test                # Swiftテスト（Swift Testing）
-cd worker && uv run pytest  # Pythonワーカーのテスト
+# Pythonワーカーのテスト（初回は .venv を作成）
+cd worker && python3.11 -m venv .venv && .venv/bin/pip install -e ".[dev]"
+cd worker && .venv/bin/pytest
 ```
 
 ## 構成の要点
 
 - `Sources/PaperdCore/` — アプリとMCPが共有するロジック。UIに依存させない（テスト可能性のため）
 - `Sources/PaperdMCPKit/` — MCPサーバロジック（stdio JSON-RPC自前実装）。CLI本体（PaperdMCP）と分離
-- `worker/` — Pythonワーカー（uv管理）。Docling / bge-m3 は遅延import（テストは軽量依存のみで動く）
+- `worker/` — Pythonワーカー（venv + pip）。Docling / bge-m3 は遅延import（テストは軽量依存のみで動く）
 - ファイルが正本・SQLiteは再構築可能なインデックス（→ docs/03）。この原則を壊す変更をしない
