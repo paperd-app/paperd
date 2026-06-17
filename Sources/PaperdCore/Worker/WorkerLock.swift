@@ -65,7 +65,7 @@ public struct WorkerLock: Codable, Equatable, Sendable {
 }
 
 /// Pythonワーカープロセスの起動（→ docs/01 3節）。
-/// `uv run paperd-worker` を子プロセスとして起動し、標準出力の `{"port": N}` 行を読み取る。
+/// `<workerDir>/.venv/bin/python -m paperd_worker` を子プロセスとして起動し、標準出力の `{"port": N}` 行を読み取る。
 public struct WorkerProcessManager {
     public let workerDirectory: URL
     public let lockPath: URL
@@ -107,15 +107,16 @@ public struct WorkerProcessManager {
         }
         let token = UUID().uuidString
         let process = Process()
-        // GUIアプリのPATHにはhomebrew等が含まれないため、uvは明示的に探索する（→ docs/01 3.3節）
-        guard let uvPath = UVLocator.find() else {
+        // <workerDir>/.venv/bin/python から `paperd_worker` モジュールを直接起動（→ docs/01 3.3節）
+        let venvPython = workerDirectory.appendingPathComponent(".venv/bin/python")
+        guard FileManager.default.isExecutableFile(atPath: venvPython.path) else {
             throw WorkerClient.WorkerAPIError(
                 code: "MODEL_NOT_READY",
-                message: "uv not found. Install it (e.g. brew install uv); see Settings > Worker for guidance.",
+                message: "Python virtual environment not found at \(venvPython.path). Open the app's Settings > Worker and run setup.",
                 statusCode: 0)
         }
-        process.executableURL = URL(fileURLWithPath: uvPath)
-        var arguments = ["run", "paperd-worker", "--token", token, "--port", "0", "--lock-file", lockPath.path]
+        process.executableURL = venvPython
+        var arguments = ["-m", "paperd_worker", "--token", token, "--port", "0", "--lock-file", lockPath.path]
         if idleTimeout > 0 {
             arguments += ["--idle-timeout", String(idleTimeout)]
         }

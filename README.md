@@ -33,8 +33,11 @@ fully rebuildable, so your library stays portable and yours.
 ## Install
 
 ```sh
-brew install --cask paperd-app/paperd/paperd   # installs uv automatically
+brew install --cask paperd-app/paperd/paperd
 ```
+
+Requires Python 3.11+. If it isn't installed, paperd's Settings → Worker will
+prompt you with the command (`brew install python@3.11`).
 
 Or download the `.zip` from [Releases](https://github.com/paperd-app/paperd/releases).
 

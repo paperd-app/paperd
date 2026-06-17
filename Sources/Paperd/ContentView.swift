@@ -9,12 +9,28 @@ struct ContentView: View {
     @State private var isDropTargeted = false
 
     var body: some View {
-        // ステータスバーはsplit viewの下に積む2段構成（safeAreaInsetで重ねると
-        // サイドバー下部の「＋ 取り込み」ボタンと干渉する → docs/09 1節のモックアップどおり）
+        // ステータスバー／セットアップバナーはsplit viewの上下に積む3段構成
+        // （safeAreaInsetで重ねるとサイドバーの「Library」見出しや下部の「＋ 取り込み」ボタンと
+        // 干渉して文字が重なる → docs/09 1節のモックアップどおり）
         VStack(spacing: 0) {
+            if model.workerStatus == .notSetup { setupBanner }
             splitView
             JobStatusBar()
         }
+    }
+
+    /// 未セットアップ時の誘導バナー（→ docs/09 7.1節。初回ウィザードの前段）
+    var setupBanner: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "wand.and.stars").foregroundStyle(.orange)
+            Text("Python環境が未セットアップです。セットアップを完了するとSemantic検索とPDF変換が有効になります。")
+                .font(.callout)
+            Spacer()
+            SettingsLink { Text("設定を開く") }
+                .controlSize(.small)
+        }
+        .padding(.horizontal, 12).padding(.vertical, 8)
+        .background(.orange.opacity(0.12))
     }
 
     var splitView: some View {
@@ -118,21 +134,6 @@ struct ContentView: View {
                 model.reload()
                 await model.refreshWorkerStatus()
                 try? await Task.sleep(nanoseconds: 3_000_000_000)
-            }
-        }
-        // 未セットアップ時の誘導バナー（→ docs/09 7.1節。初回ウィザードの前段）
-        .safeAreaInset(edge: .top, spacing: 0) {
-            if model.workerStatus == .notSetup {
-                HStack(spacing: 8) {
-                    Image(systemName: "wand.and.stars").foregroundStyle(.orange)
-                    Text("Python環境が未セットアップです。セットアップを完了するとSemantic検索とPDF変換が有効になります。")
-                        .font(.callout)
-                    Spacer()
-                    SettingsLink { Text("設定を開く") }
-                        .controlSize(.small)
-                }
-                .padding(.horizontal, 12).padding(.vertical, 8)
-                .background(.orange.opacity(0.12))
             }
         }
     }

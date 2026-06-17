@@ -16,15 +16,15 @@ ml = [
     "docling>=2.0",
     "sentence-transformers>=3.0",
 ]
-
-[project.scripts]
-paperd-worker = "paperd_worker.main:main"
-
-[dependency-groups]
+# Test deps. PEP 735 [dependency-groups] is not standard pip; keep here so
+# `pip install -e ".[dev]"` works.
 dev = [
     "pytest",
     "httpx",
 ]
+
+[project.scripts]
+paperd-worker = "paperd_worker.main:main"
 
 [build-system]
 requires = ["hatchling"]

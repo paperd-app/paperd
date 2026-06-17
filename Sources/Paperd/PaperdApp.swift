@@ -172,7 +172,7 @@ final class AppModel: ObservableObject {
             self.store = store
             startJobRunner(store: store)
             reload()
-            autoConfigureWorkerDirIfNeeded()
+            deployWorkerIfNeeded()
             autoStartWorkerIfEnabled()
         } catch {
             errorMessage = String(describing: error)
@@ -181,43 +181,25 @@ final class AppModel: ObservableObject {
 
     // MARK: - ワーカーのライフサイクル（→ docs/01 3.2節, docs/09 9節）
 
-    var workerDirectory: URL? {
-        let path = UserDefaults.standard.string(forKey: "workerDir") ?? ""
-        guard !path.isEmpty else { return nil }
-        return URL(fileURLWithPath: (path as NSString).expandingTildeInPath)
+    /// 起動時に 1 回だけ展開して保存するキャッシュ。hot path（refreshWorkerStatus 等）は
+    /// これを読むだけにし、`WorkerLocator.locate()` の disk I/O を回避する（→ docs/01 3.3節）
+    @Published private(set) var workerDirectory: URL?
+
+    /// 起動時の 1 回展開。配布バンドルがあれば Application Support に展開、なければ dev / 既存
+    /// App Support を `locate()` で拾う。展開失敗は errorMessage に流す
+    func deployWorkerIfNeeded() {
+        do {
+            workerDirectory = try WorkerLocator.locateOrDeploy()
+        } catch {
+            errorMessage = "Failed to deploy worker source: \(error.localizedDescription)"
+            workerDirectory = WorkerLocator.locate()
+        }
     }
 
-    /// セットアップ済みか（worker/ディレクトリ指定 + uv環境構築済み）
+    /// セットアップ済みか（.venv が存在）
     var workerIsSetUp: Bool {
         guard let dir = workerDirectory else { return false }
         return FileManager.default.fileExists(atPath: dir.appendingPathComponent(".venv").path)
-    }
-
-    /// workerパスの自動検出（→ docs/09 9節）。
-    /// 未設定なら、アプリバンドルに隣接する worker/（開発ビルド = リポジトリ内 .build/../worker）を探して既定値にする。
-    /// 外部起動ワーカーのlock再利用で「設定済みに見える」状態が、ワーカー停止時に突然
-    /// セットアップ画面へ化ける紛らわしさへの対策
-    func autoConfigureWorkerDirIfNeeded() {
-        let defaults = UserDefaults.standard
-        guard (defaults.string(forKey: "workerDir") ?? "").isEmpty else { return }
-        let fm = FileManager.default
-        // ① 開発ビルド: リポジトリ内のworker/（環境構築済みのもの）
-        let devCandidate = Bundle.main.bundleURL
-            .deletingLastPathComponent()  // .build/
-            .deletingLastPathComponent()  // リポジトリルート
-            .appendingPathComponent("worker")
-        if fm.fileExists(atPath: devCandidate.appendingPathComponent("pyproject.toml").path),
-           fm.fileExists(atPath: devCandidate.appendingPathComponent(".venv").path) {
-            defaults.set(devCandidate.path, forKey: "workerDir")
-            return
-        }
-        // ② 配布ビルド: 同梱ワーカーをApplication Supportへ展開（→ docs/01 3.3節）
-        if let resources = Bundle.main.resourceURL {
-            let deployment = WorkerDeployment(bundledDir: resources.appendingPathComponent("worker"))
-            if let deployed = (try? deployment.deployIfNeeded()) ?? nil {
-                defaults.set(deployed.path, forKey: "workerDir")
-            }
-        }
     }
 
     /// アプリ起動時の自動起動（既定ON。設定「アプリ起動時にワーカーを自動起動」）
