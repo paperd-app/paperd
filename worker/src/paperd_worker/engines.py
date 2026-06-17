@@ -104,7 +104,7 @@ class DoclingConversionEngine:
         except ImportError as exc:
             raise WorkerError(
                 "MODEL_NOT_READY",
-                "docling is not installed; run `uv sync --extra ml`",
+                "docling is not installed; run `.venv/bin/pip install -e \".[ml]\"`",
             ) from exc
 
         progress_cb("load", None, None)
@@ -159,7 +159,7 @@ class BgeM3EmbeddingEngine:
         except ImportError as exc:
             raise WorkerError(
                 "MODEL_NOT_READY",
-                "sentence-transformers is not installed; run `uv sync --extra ml`",
+                "sentence-transformers is not installed; run `.venv/bin/pip install -e \".[ml]\"`",
             ) from exc
 
         with self._lock:

@@ -44,7 +44,7 @@ All endpoints require the bearer token.
 | `POST /convert` | `{"pdf_path", "output_dir", "options": {"ocr": false, "max_pages": 500, "timeout_sec": 900}}` → `202 {"job_id": "w-..."}`. Async; writes `paper.md` + `paper.docling.json` into `output_dir`. Conversions are serialized on one worker thread. |
 | `GET /jobs/{id}` | `{"job_id", "status": queued\|running\|succeeded\|failed, "stage", "progress", "error"}` |
 | `POST /embed` | `{"texts": [...], "task": "passage"\|"query"}` → `{"embeddings", "model", "dimensions"}` |
-| `GET /health` | `{"status": "ok", "model_loaded": bool, "version": "0.1.0"}` |
+| `GET /health` | `{"status": "ok", "model_loaded": bool, "version": "0.2.1"}` |
 
 Errors use `{"error": {"code", "message"}}` with this status mapping:
 `PDF_CORRUPT` / `PDF_ENCRYPTED` / `PAGE_LIMIT_EXCEEDED` → 400,

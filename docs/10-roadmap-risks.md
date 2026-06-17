@@ -8,7 +8,7 @@
 |---|---|---|
 | M1: 基盤 | PaperdCore（DB / マイグレーション / meta.json入出力）、ライブラリレイアウト、最小UI（リスト表示） | PDFを手動配置してリスト表示できる |
 | M2: 取り込み | メタデータ解決（arXiv / Crossref / S2 / OpenAlex）、jobsキュー、JobRunner | arXiv ID / DOI / PDFドロップで書誌登録できる |
-| M3: AI処理 | Pythonワーカー（uvセットアップ / Docling / bge-m3）、チャンキング、インデックス投入 | 取り込んだ論文がMarkdown化・embedding済みになる |
+| M3: AI処理 | Pythonワーカー（venv + pip セットアップ / Docling / bge-m3）、チャンキング、インデックス投入 | 取り込んだ論文がMarkdown化・embedding済みになる |
 | M4: 検索 | ハイブリッド検索（ベクトルKNN + FTS5 + RRF）、検索UI、PDFビューア | アプリ内でSemantic検索→PDF閲覧が通る |
 | M5: MCP | paperd-mcp（5ツール）、設定スニペットUI | ClaudeからライブラリをSemantic検索・bibtex取得できる |
 | M6: 周辺機能 | 引用グラフ、ノート、初回セットアップウィザード磨き込み | v1リリース候補 |

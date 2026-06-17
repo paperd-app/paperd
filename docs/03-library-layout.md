@@ -29,7 +29,7 @@
     library.sqlite-wal / -shm
 
 ~/Library/Application Support/paperd/ # マシンローカル（同期しない）
-  python/                             # uv管理のPython環境
+  worker/                             # 展開済みワーカーソース + .venv
   models/                             # embeddingモデルキャッシュ
   worker.lock                         # ワーカー多重起動防止
   logs/

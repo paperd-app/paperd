@@ -561,12 +561,12 @@
         }
       }
     },
-    "uv が見つかりません。ワーカーの実行にはuvが必要です。": {
+    "Python 3.11+ が見つかりません。ワーカーの実行に必要です。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "uv was not found. uv is required to run the worker."
+            "value": "Python 3.11+ was not found. It is required to run the worker."
           }
         }
       }
@@ -2141,12 +2141,12 @@
         }
       }
     },
-    "環境構築（uv sync --extra ml）": {
+    "環境構築（venv + pip install）": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Set Up Environment (uv sync --extra ml)"
+            "value": "Set Up Environment (venv + pip install)"
           }
         }
       }
