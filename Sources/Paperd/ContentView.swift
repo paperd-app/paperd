@@ -41,20 +41,6 @@ struct ContentView: View {
         } detail: {
             DetailView()
         }
-        .searchable(text: $model.searchQuery, isPresented: $model.searchPresented, prompt: "ライブラリを検索")
-        // 検索モードはフィールド直下のスコープバーで切替（→ docs/09 6節）
-        .searchScopes($model.searchMode) {
-            Text("ハイブリッド").tag(SearchMode.hybrid)
-            Text("キーワードのみ").tag(SearchMode.keywordOnly)
-        }
-        .onSubmit(of: .search) { model.performSearch() }
-        .onChange(of: model.searchQuery) { _, newValue in
-            if newValue.isEmpty { model.searchResults = nil }
-        }
-        .onChange(of: model.searchMode) { _, _ in
-            // 結果表示中のモード切替は即再検索
-            if model.searchResults != nil { model.performSearch() }
-        }
         // ウィンドウ全体をPDFドロップターゲットに（→ docs/09 7節）
         .onDrop(of: [.fileURL], isTargeted: $isDropTargeted) { providers in
             Task {
@@ -324,6 +310,47 @@ struct PaperListView: View {
         }
     }
 
+    @ToolbarContentBuilder
+    var listToolbar: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            LibrarySearchBar()
+        }
+        // ソート（→ docs/09 3節）
+        ToolbarItem {
+            Menu {
+                // inline: 「並べ替え >」のサブメニュー階層を作らず選択肢を直接並べる
+                Picker("並べ替え", selection: $model.sortOrder) {
+                    ForEach(AppModel.PaperSort.allCases, id: \.self) { Text($0.localizedName).tag($0) }
+                }
+                .pickerStyle(.inline)
+            } label: {
+                Label("並べ替え", systemImage: "arrow.up.arrow.down")
+            }
+            .help("並べ替え: \(model.sortOrder.localizedName)")
+        }
+        ToolbarItem {
+            Button {
+                if let selected = selectedPaper { pendingDelete = selected }
+            } label: {
+                Label("削除", systemImage: "trash")
+            }
+            .keyboardShortcut(.delete, modifiers: .command)
+            .disabled(selectedPaper == nil)
+            .help("選択中の論文をゴミ箱に移動（⌘⌫）")
+        }
+        // ステータス別リストの一括削除（→ docs/09 3節）
+        if case .smart(let list) = model.sidebarSelection, list.statusFilter != nil, !model.visiblePapers.isEmpty {
+            ToolbarItem {
+                Button(role: .destructive) {
+                    showBulkDeleteConfirm = true
+                } label: {
+                    Label("このリストをすべて削除…", systemImage: "trash.slash")
+                }
+                .help("「\(list.localizedName)」の論文をすべてゴミ箱に移動")
+            }
+        }
+    }
+
     var body: some View {
         List(selection: $model.selectedPaperId) {
             if let grouped = model.groupedSearchResults {
@@ -359,34 +386,7 @@ struct PaperListView: View {
             if let selected = selectedPaper { pendingDelete = selected }
         }
         .toolbar {
-            // ソート（→ docs/09 3節）
-            Menu {
-                // inline: 「並べ替え >」のサブメニュー階層を作らず選択肢を直接並べる
-                Picker("並べ替え", selection: $model.sortOrder) {
-                    ForEach(AppModel.PaperSort.allCases, id: \.self) { Text($0.localizedName).tag($0) }
-                }
-                .pickerStyle(.inline)
-            } label: {
-                Label("並べ替え", systemImage: "arrow.up.arrow.down")
-            }
-            .help("並べ替え: \(model.sortOrder.localizedName)")
-            Button {
-                if let selected = selectedPaper { pendingDelete = selected }
-            } label: {
-                Label("削除", systemImage: "trash")
-            }
-            .keyboardShortcut(.delete, modifiers: .command)
-            .disabled(selectedPaper == nil)
-            .help("選択中の論文をゴミ箱に移動（⌘⌫）")
-            // ステータス別リストの一括削除（→ docs/09 3節）
-            if case .smart(let list) = model.sidebarSelection, list.statusFilter != nil, !model.visiblePapers.isEmpty {
-                Button(role: .destructive) {
-                    showBulkDeleteConfirm = true
-                } label: {
-                    Label("このリストをすべて削除…", systemImage: "trash.slash")
-                }
-                .help("「\(list.localizedName)」の論文をすべてゴミ箱に移動")
-            }
+            listToolbar
         }
         .confirmationDialog(
             "「\(model.listTitle)」の \(model.visiblePapers.count) 件をすべて削除しますか？",
@@ -421,8 +421,8 @@ struct PaperListView: View {
                 .keyboardShortcut(.cancelAction)
                 .hidden()
         )
-        // semantic検索が使えなかったときの案内（→ docs/09 6節「モデル準備中」表示）
         .safeAreaInset(edge: .top, spacing: 0) {
+            // semantic検索が使えなかったときの案内（→ docs/09 6節「モデル準備中」表示）
             if model.searchResults != nil, !model.semanticUsed, model.searchMode == .hybrid {
                 HStack(spacing: 6) {
                     Image(systemName: "info.circle").foregroundStyle(.secondary)
@@ -442,6 +442,110 @@ struct PaperListView: View {
                     description: Text(model.searchResults != nil ? "別のキーワードを試してください" : "＋ボタン・PDFドロップ・MCPのadd_paperで論文を追加できます")
                 )
             }
+        }
+    }
+}
+
+struct LibrarySearchBar: View {
+    @EnvironmentObject var model: AppModel
+
+    var body: some View {
+        HStack(spacing: 8) {
+            IMEAwareSearchField(
+                text: $model.searchQuery,
+                isFocused: $model.searchPresented,
+                placeholder: String(localized: "ライブラリを検索"),
+                onSubmit: { model.performSearch() }
+            )
+            .frame(width: 320, height: 24)
+
+            Picker("", selection: $model.searchMode) {
+                Text("ハイブリッド").tag(SearchMode.hybrid)
+                Text("キーワードのみ").tag(SearchMode.keywordOnly)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .frame(width: 180)
+        }
+        .onChange(of: model.searchQuery) { _, newValue in
+            if newValue.isEmpty { model.searchResults = nil }
+        }
+        .onChange(of: model.searchMode) { _, _ in
+            // 結果表示中のモード切替は即再検索
+            if model.searchResults != nil { model.performSearch() }
+        }
+    }
+}
+
+struct IMEAwareSearchField: NSViewRepresentable {
+    @Binding var text: String
+    @Binding var isFocused: Bool
+    let placeholder: String
+    let onSubmit: () -> Void
+
+    func makeNSView(context: Context) -> NSSearchField {
+        let field = NSSearchField()
+        field.delegate = context.coordinator
+        field.placeholderString = placeholder
+        field.controlSize = .regular
+        field.font = .systemFont(ofSize: NSFont.systemFontSize)
+        field.sendsSearchStringImmediately = false
+        field.sendsWholeSearchString = true
+        return field
+    }
+
+    func updateNSView(_ field: NSSearchField, context: Context) {
+        context.coordinator.parent = self
+        field.placeholderString = placeholder
+
+        let editor = field.currentEditor()
+        let hasMarkedText = (editor as? NSTextView)?.hasMarkedText() == true
+        if !hasMarkedText, field.stringValue != text {
+            field.stringValue = text
+        }
+
+        if isFocused, field.window?.firstResponder !== editor {
+            field.window?.makeFirstResponder(field)
+            field.currentEditor()?.selectAll(nil)
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(parent: self)
+    }
+
+    final class Coordinator: NSObject, NSSearchFieldDelegate {
+        var parent: IMEAwareSearchField
+
+        init(parent: IMEAwareSearchField) {
+            self.parent = parent
+        }
+
+        func controlTextDidBeginEditing(_ obj: Notification) {
+            parent.isFocused = true
+        }
+
+        func controlTextDidEndEditing(_ obj: Notification) {
+            parent.isFocused = false
+        }
+
+        func controlTextDidChange(_ obj: Notification) {
+            guard let field = obj.object as? NSSearchField else { return }
+            parent.text = field.stringValue
+        }
+
+        func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+            guard commandSelector == #selector(NSResponder.insertNewline(_:)) else {
+                return false
+            }
+            guard !textView.hasMarkedText() else {
+                return false
+            }
+            if let field = control as? NSSearchField {
+                parent.text = field.stringValue
+            }
+            parent.onSubmit()
+            return true
         }
     }
 }

@@ -44,7 +44,7 @@ struct PaperdApp: App {
                 Button("PDFファイル / フォルダから取り込む…") { model.pickAndImportFiles() }
                     .keyboardShortcut("o")
             }
-            // ⌘F: 検索フィールドへフォーカス（searchableは自動でFindにバインドされない → docs/09 6節）
+            // ⌘F: 検索フィールドへフォーカス（IME制御のため独自NSSearchFieldを使う → docs/09 6節）
             CommandGroup(after: .textEditing) {
                 Button("ライブラリを検索") { model.searchPresented = true }
                     .keyboardShortcut("f")
