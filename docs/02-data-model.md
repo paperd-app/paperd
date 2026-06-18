@@ -106,7 +106,7 @@ CREATE INDEX idx_chunks_paper ON chunks(paper_id);
 -- sqlite-vec導入時はこのテーブル定義とVectorStoreのみ差し替える（設計変更 2026-06。→ [06](06-search-rag.md) 3節）
 CREATE TABLE vec_chunks (
   rowid     INTEGER PRIMARY KEY REFERENCES chunks(id) ON DELETE CASCADE,
-  embedding BLOB NOT NULL                -- bge-m3: float32 × 1024次元
+  embedding BLOB NOT NULL                -- Qwen3-Embedding: float32 × 1024次元
 );
 
 -- FTS5 仮想テーブル（キーワード検索用）
@@ -115,7 +115,7 @@ CREATE VIRTUAL TABLE fts_chunks USING fts5(
 );
 
 CREATE TABLE embedding_meta (            -- 再embedding判定用
-  model_name  TEXT NOT NULL,             -- 例: BAAI/bge-m3
+  model_name  TEXT NOT NULL,             -- 例: mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ
   dimensions  INTEGER NOT NULL,
   created_at  TEXT NOT NULL
 );

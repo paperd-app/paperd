@@ -499,6 +499,25 @@ final class AppModel: ObservableObject {
         }
     }
 
+    /// 変換済み本文からチャンク・embedding・FTSを再計算する。
+    /// モデル変更時の再embedding用で、書誌DBの再構築やPDF再変換は行わない。
+    func reembedImportedPapers() {
+        guard let store, let queue else { return }
+        do {
+            var enqueued = 0
+            for paper in try store.allPapers() where paper.paperStatus == .indexed || paper.paperStatus == .pdfOnly {
+                if try queue.enqueueIfAbsent(kind: .reindex, paperId: paper.id, origin: .app) != nil {
+                    enqueued += 1
+                }
+            }
+            reloadJobs()
+            sidebarSelection = .smart(.processing)
+            rebuildMessage = String(localized: "検索インデックス（\(enqueued)論文）はバックグラウンドで再embeddingされます。")
+        } catch {
+            errorMessage = String(describing: error)
+        }
+    }
+
     /// 代替PDFの自動探索（→ docs/04 6節）。
     /// 再解決ジョブを投入し、S2/OpenAlex補完（arXiv ID・OAリンク）を更新してfetchを再試行する
     func refetchPDF(_ paper: Paper) {

@@ -26,7 +26,7 @@ public struct Chunker: Sendable {
         }
     }
 
-    /// bge-m3トークナイザの近似。単語数と文字数/4の大きい方（CJK・長英単語の双方をカバー）
+    /// embeddingモデル非依存の近似。単語数と文字数/4の大きい方（CJK・長英単語の双方をカバー）
     public static func estimateTokens(_ text: String) -> Int {
         let words = text.split(whereSeparator: { $0.isWhitespace }).count
         let chars = text.count

@@ -24,7 +24,7 @@ Sources/
   PaperdMCP/              # paperd-mcp CLI
   Paperd/                 # SwiftUI app (3-pane UI, search, citation graph, settings)
 Tests/PaperdTests/        # Swift tests (Swift Testing)
-worker/                   # Python worker (FastAPI / Docling / bge-m3 → docs/05)
+worker/                   # Python worker (FastAPI / Docling / Qwen3-Embedding MLX → docs/05)
 skills/                   # Bundled Claude skills (installable from Settings → ~/.claude/skills)
 agents/                   # Bundled Claude subagents for research orchestration (installable → ~/.claude/agents, → docs/12)
 docs/                     # Design docs (Japanese)
@@ -56,7 +56,7 @@ cd worker
 python3.11 -m venv .venv                                # create venv (Python 3.11+ required)
 .venv/bin/pip install -e ".[dev]"                       # development (lightweight: FastAPI + pytest only)
 .venv/bin/pytest                                        # tests
-.venv/bin/pip install -e ".[ml]"                        # production (Docling + sentence-transformers, 2–3 GB)
+.venv/bin/pip install -e ".[ml]"                        # production (Docling + MLX embedding runtime)
 .venv/bin/python -m paperd_worker --token SECRET --port 0   # start ({"port": N} is printed to stdout)
 ```
 
@@ -108,4 +108,3 @@ MCP output is read by AI clients.
 paperd ships as a notarized Developer ID `.app` via a Homebrew cask. The release flow
 (`scripts/release.sh` → tag → `gh release` → tap update) is documented separately.
 ```
-

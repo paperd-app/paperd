@@ -79,7 +79,7 @@ public struct LiveStageExecutors: IngestStageExecutors {
         try await worker.waitForConversion(jobId)
     }
 
-    /// embedのバッチサイズ。変換直後のメモリ圧でのMPS失敗を避けるため一度に送りすぎない
+    /// embedのバッチサイズ。変換直後のメモリ圧でのML runtime失敗を避けるため一度に送りすぎない
     public static let embedBatchSize = 16
 
     public func embed(texts: [String]) async throws -> [[Float]] {

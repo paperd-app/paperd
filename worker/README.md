@@ -1,7 +1,7 @@
 # paperd-worker
 
 Python worker for paperd: PDF → Markdown/JSON conversion (Docling) and
-embedding generation (BAAI/bge-m3) over localhost HTTP. See
+embedding generation (Qwen3-Embedding-0.6B 4bit via MLX) over localhost HTTP. See
 `docs/01-architecture.md` §3 and `docs/05-pdf-conversion.md`.
 
 ## Setup
@@ -11,8 +11,8 @@ Requires Python 3.11+ (`brew install python@3.11` if missing).
 ```sh
 python3.11 -m venv .venv                  # create the local virtualenv
 .venv/bin/pip install -e ".[dev]"         # base + dev deps (lightweight, enough for tests)
-.venv/bin/pip install -e ".[ml]"          # additionally install docling + sentence-transformers
-                                          # (multi-GB with PyTorch; needed for real conversion/embedding)
+.venv/bin/pip install -e ".[ml]"          # additionally install docling + MLX embedding runtime
+                                          # (needed for real conversion/embedding)
 ```
 
 Without the `ml` extra the server runs fine, but `/convert` jobs fail and
@@ -44,7 +44,7 @@ All endpoints require the bearer token.
 | `POST /convert` | `{"pdf_path", "output_dir", "options": {"ocr": false, "max_pages": 500, "timeout_sec": 900}}` → `202 {"job_id": "w-..."}`. Async; writes `paper.md` + `paper.docling.json` into `output_dir`. Conversions are serialized on one worker thread. |
 | `GET /jobs/{id}` | `{"job_id", "status": queued\|running\|succeeded\|failed, "stage", "progress", "error"}` |
 | `POST /embed` | `{"texts": [...], "task": "passage"\|"query"}` → `{"embeddings", "model", "dimensions"}` |
-| `GET /health` | `{"status": "ok", "model_loaded": bool, "version": "0.2.1"}` |
+| `GET /health` | `{"status": "ok", "model_loaded": bool, "version": "0.2.2"}` |
 
 Errors use `{"error": {"code", "message"}}` with this status mapping:
 `PDF_CORRUPT` / `PDF_ENCRYPTED` / `PAGE_LIMIT_EXCEEDED` → 400,

@@ -184,7 +184,7 @@ def test_slow_embed_does_not_block_other_endpoints(tmp_path):
     """embed実行中（モデルロード中）でも他エンドポイントが即応答すること。
 
     回帰: async defエンドポイントがブロッキングのembedを直接呼んでいたため、
-    bge-m3初回ロード中にイベントループ全体が停止し、/convertの202応答すら
+    embeddingモデル初回ロード中にイベントループ全体が停止し、/convertの202応答すら
     60秒を超えてクライアント側がタイムアウトしていた。
     """
     import threading
@@ -263,7 +263,7 @@ def test_convert_options_accept_quality_flags(tmp_path):
 
 
 def test_embed_unexpected_exception_returns_internal_with_reason(tmp_path):
-    """embed中の予期しない例外（MPSメモリ不足等）は理由つきINTERNALで返ること"""
+    """embed中の予期しない例外（Metal/ML runtimeエラー等）は理由つきINTERNALで返ること"""
     from paperd_worker.app import create_app
     from conftest import TOKEN, FakeConversionEngine
 
@@ -273,7 +273,7 @@ def test_embed_unexpected_exception_returns_internal_with_reason(tmp_path):
         is_loaded = True
 
         def embed(self, texts, task):
-            raise RuntimeError("MPS backend out of memory")
+            raise RuntimeError("ML backend out of memory")
 
     app = create_app(token=TOKEN, conversion_engine=FakeConversionEngine(),
                      embedding_engine=ExplodingEmbedder())
@@ -283,4 +283,4 @@ def test_embed_unexpected_exception_returns_internal_with_reason(tmp_path):
     assert res.status_code == 500
     body = res.json()["error"]
     assert body["code"] == "INTERNAL"
-    assert "MPS backend out of memory" in body["message"]
+    assert "ML backend out of memory" in body["message"]

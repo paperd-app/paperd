@@ -32,7 +32,7 @@ struct MarkdownTab: View {
                         Label("高精度で再変換", systemImage: "wand.and.sparkles")
                     }
                     .controlSize(.small)
-                    .help("強制OCR + 数式エンリッチメントで変換し直します（数分かかります）。文字化けや上付き文字の潰れの回復に有効です")
+                    .help(String(localized: "強制OCR + 数式エンリッチメントで変換し直します（数分かかります）。文字化けや上付き文字の潰れの回復に有効です"))
                     Button("Finderで表示") {
                         if let url = model.markdownFileURL(of: paperId) {
                             NSWorkspace.shared.activateFileViewerSelecting([url])

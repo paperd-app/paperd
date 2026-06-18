@@ -1,8 +1,8 @@
 """Engine protocols and real (lazily imported) implementations.
 
-The real engines import docling / sentence-transformers inside their methods
-so this module imports fine without the ``ml`` extras installed. If an import
-fails, a ``WorkerError(code="MODEL_NOT_READY")`` is raised.
+The real engines import docling / MLX embedding dependencies inside their
+methods so this module imports fine without the ``ml`` extras installed. If an
+import fails, a ``WorkerError(code="MODEL_NOT_READY")`` is raised.
 """
 
 from __future__ import annotations
@@ -129,16 +129,31 @@ class DoclingConversionEngine:
         )
 
 
-class BgeM3EmbeddingEngine:
-    """Real embedding engine backed by sentence-transformers + BAAI/bge-m3."""
+class Qwen3EmbeddingEngine:
+    """Real embedding engine backed by MLX + Qwen3-Embedding-0.6B 4bit."""
 
-    def __init__(self, model_name: str = "BAAI/bge-m3") -> None:
+    QUERY_INSTRUCTION = (
+        "Instruct: Given a search query, retrieve relevant passages from academic "
+        "papers that answer or discuss the query\nQuery: "
+    )
+
+    def __init__(
+        self,
+        model_name: str = "mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ",
+        *,
+        batch_size: int = 2,
+        max_length: int = 8192,
+    ) -> None:
         import threading
 
         self._model_name = model_name
         self._model: Any = None
+        self._tokenizer: Any = None
+        self._pad_id: int = 151643
+        self._batch_size = batch_size
+        self._max_length = max_length
         # 並行リクエスト対策: モデルロードとencodeは直列化する
-        #（sentence-transformersのencodeはスレッドセーフでない）
+        #（MLXのlazy evaluationとMetal allocatorのピークを抑える）
         self._lock = threading.Lock()
 
     @property
@@ -155,25 +170,67 @@ class BgeM3EmbeddingEngine:
 
     def embed(self, texts: list[str], task: Task) -> list[list[float]]:
         try:
-            from sentence_transformers import SentenceTransformer
+            import gc
+
+            import mlx.core as mx
+            import numpy as np
+            from mlx_lm import load
         except ImportError as exc:
             raise WorkerError(
                 "MODEL_NOT_READY",
-                "sentence-transformers is not installed; run `.venv/bin/pip install -e \".[ml]\"`",
+                "MLX embedding dependencies are not installed; run `.venv/bin/pip install -e \".[ml]\"`",
             ) from exc
 
         with self._lock:
             if self._model is None:
                 try:
-                    self._model = SentenceTransformer(self._model_name)
+                    self._model, self._tokenizer = load(self._model_name)
+                    self._model.eval()
+                    mx.eval(self._model.parameters())
+                    self._pad_id = (
+                        getattr(self._tokenizer, "pad_token_id", None)
+                        or getattr(self._tokenizer, "eos_token_id", 151643)
+                    )
                 except Exception as exc:
                     raise WorkerError(
                         "MODEL_NOT_READY", f"failed to load {self._model_name}: {exc}"
                     ) from exc
 
-            # bge-m3 dense vectors do not require task-specific prefixes; the
-            # `task` parameter is kept in the API for model interchangeability.
-            # batch_sizeを絞る: 長文チャンク（>1000トークン）の大きなバッチは
-            # MPSのメモリ不足で落ちる（attentionのメモリはseq長の2乗 → docs/05）
-            vectors = self._model.encode(texts, normalize_embeddings=True, batch_size=4)
-            return [vector.tolist() for vector in vectors]
+            assert self._tokenizer is not None
+            if task == "query":
+                inputs = [self.QUERY_INSTRUCTION + text for text in texts]
+            else:
+                inputs = texts
+
+            vectors: list[list[float]] = []
+            for start in range(0, len(inputs), self._batch_size):
+                batch = inputs[start : start + self._batch_size]
+                encoded = [
+                    self._tokenizer.encode(text)[: self._max_length]
+                    for text in batch
+                ]
+                lengths = [max(1, len(ids)) for ids in encoded]
+                max_len = max(lengths)
+                padded = [
+                    ids + [self._pad_id] * (max_len - len(ids))
+                    for ids in encoded
+                ]
+
+                token_ids = mx.array(padded)
+                hidden = self._model.model(token_ids)
+                pooled = mx.stack(
+                    [hidden[i, length - 1, :] for i, length in enumerate(lengths)]
+                )
+                pooled = pooled / mx.maximum(
+                    mx.linalg.norm(pooled, axis=1, keepdims=True), 1e-12
+                )
+                pooled = pooled.astype(mx.float32)
+                mx.eval(pooled)
+                vectors.extend(np.array(pooled).tolist())
+
+                del token_ids, hidden, pooled
+                gc.collect()
+                if hasattr(mx, "clear_cache"):
+                    mx.clear_cache()
+
+            return vectors

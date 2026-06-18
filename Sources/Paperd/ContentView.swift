@@ -260,7 +260,7 @@ struct SidebarImportButton: View {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.regular)
-            .help("arXiv / DOI / URL を入力して取り込む（⌘N）")
+            .help(String(localized: "arXiv / DOI / URL を入力して取り込む（⌘N）"))
 
             // 副アクション: ファイル / フォルダ選択
             Button {
@@ -270,7 +270,7 @@ struct SidebarImportButton: View {
             }
             .buttonStyle(.bordered)
             .controlSize(.regular)
-            .help("PDFファイル / フォルダから取り込む（⌘O）")
+            .help(String(localized: "PDFファイル / フォルダから取り込む（⌘O）"))
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
@@ -326,7 +326,7 @@ struct PaperListView: View {
             } label: {
                 Label("並べ替え", systemImage: "arrow.up.arrow.down")
             }
-            .help("並べ替え: \(model.sortOrder.localizedName)")
+            .help(String(localized: "並べ替え: \(model.sortOrder.localizedName)"))
         }
         ToolbarItem {
             Button {
@@ -336,7 +336,7 @@ struct PaperListView: View {
             }
             .keyboardShortcut(.delete, modifiers: .command)
             .disabled(selectedPaper == nil)
-            .help("選択中の論文をゴミ箱に移動（⌘⌫）")
+            .help(String(localized: "選択中の論文をゴミ箱に移動（⌘⌫）"))
         }
         // ステータス別リストの一括削除（→ docs/09 3節）
         if case .smart(let list) = model.sidebarSelection, list.statusFilter != nil, !model.visiblePapers.isEmpty {
@@ -346,7 +346,7 @@ struct PaperListView: View {
                 } label: {
                     Label("このリストをすべて削除…", systemImage: "trash.slash")
                 }
-                .help("「\(list.localizedName)」の論文をすべてゴミ箱に移動")
+                .help(String(localized: "「\(list.localizedName)」の論文をすべてゴミ箱に移動"))
             }
         }
     }
@@ -437,9 +437,9 @@ struct PaperListView: View {
         .overlay {
             if model.visiblePapers.isEmpty {
                 ContentUnavailableView(
-                    model.searchResults != nil ? "ヒットなし" : "論文がありません",
+                    model.searchResults != nil ? String(localized: "ヒットなし") : String(localized: "論文がありません"),
                     systemImage: "doc.text.magnifyingglass",
-                    description: Text(model.searchResults != nil ? "別のキーワードを試してください" : "＋ボタン・PDFドロップ・MCPのadd_paperで論文を追加できます")
+                    description: Text(model.searchResults != nil ? String(localized: "別のキーワードを試してください") : String(localized: "＋ボタン・PDFドロップ・MCPのadd_paperで論文を追加できます"))
                 )
             }
         }
@@ -566,19 +566,19 @@ struct PaperRow: View {
                 }
                 if paper.isOwn {
                     Image(systemName: "person.crop.circle.fill").font(.system(size: 10)).foregroundStyle(.teal)
-                        .help("自著論文")
+                        .help(String(localized: "自著論文"))
                 }
                 if (paper.conversionWarnings ?? 0) > 0 {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.system(size: 9))
                         .foregroundStyle(.orange)
-                        .help("文字化けの疑い \(paper.conversionWarnings!)件（Markdownタブで確認 → docs/05 4.1節）")
+                        .help(String(localized: "文字化けの疑い \(paper.conversionWarnings!)件（Markdownタブで確認 → docs/05 4.1節）"))
                 }
                 if let relativeScore {
                     Spacer()
                     StrengthBar(ratio: relativeScore)
                         // %は明示specifierでキーに%%として載せる（単独%はString(format:)で%oに化ける）
-                        .help("ヒット強度（トップヒット比 \(Int(relativeScore * 100), specifier: "%lld%%")）")
+                        .help(String(localized: "ヒット強度（トップヒット比 \(Int(relativeScore * 100), specifier: "%lld%%")）"))
                 }
             }
             HStack(spacing: 6) {
@@ -668,7 +668,7 @@ struct SearchHitRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help("クリックでMarkdownタブの該当セクションを開く")
+        .help(String(localized: "クリックでMarkdownタブの該当セクションを開く"))
     }
 
     var matchChip: some View {
@@ -787,7 +787,7 @@ struct InfoTab: View {
                             .foregroundStyle(paper.isFavorite ? .yellow : .secondary)
                     }
                     .buttonStyle(.plain)
-                    .help(paper.isFavorite ? "お気に入りから外す" : "お気に入りに追加")
+                    .help(paper.isFavorite ? String(localized: "お気に入りから外す") : String(localized: "お気に入りに追加"))
                     Button {
                         model.toggleOwn(paper)
                     } label: {
@@ -795,7 +795,7 @@ struct InfoTab: View {
                             .foregroundStyle(paper.isOwn ? .teal : .secondary)
                     }
                     .buttonStyle(.plain)
-                    .help(paper.isOwn ? "自著論文から外す" : "自著論文に登録")
+                    .help(paper.isOwn ? String(localized: "自著論文から外す") : String(localized: "自著論文に登録"))
                 }
                 Text(model.authorNames(for: paper).joined(separator: ", "))
                     .foregroundStyle(.secondary).textSelection(.enabled)
@@ -835,7 +835,7 @@ struct InfoTab: View {
                         Label("引用をコピー", systemImage: "quote.opening")
                     }
                     .fixedSize()
-                    .help("スタイルを選んで整形済みの引用文をコピー（前回: \(lastCitationStyle.localizedName)）")
+                    .help(String(localized: "スタイルを選んで整形済みの引用文をコピー（前回: \(lastCitationStyle.localizedName)）"))
                     if let webURL = paper.webURL {
                         Button {
                             NSWorkspace.shared.open(webURL)
@@ -850,7 +850,7 @@ struct InfoTab: View {
                         } label: {
                             Label("PDFを書き出し", systemImage: "square.and.arrow.down")
                         }
-                        .help("人に送れるファイル名でPDFをコピーします")
+                        .help(String(localized: "人に送れるファイル名でPDFをコピーします"))
                     }
                 }
                 .padding(.top, 8)
@@ -992,8 +992,8 @@ struct MCPIndicator: View {
         }
         .buttonStyle(.plain)
         .help(model.mcpLastAccessText != nil
-              ? "MCPの最終アクセス。クリックで連携設定を開く"
-              : "AIクライアント（Claude等）からのアクセスはまだありません。クリックで登録方法を表示")
+              ? String(localized: "MCPの最終アクセス。クリックで連携設定を開く")
+              : String(localized: "AIクライアント（Claude等）からのアクセスはまだありません。クリックで登録方法を表示"))
     }
 }
 
@@ -1075,7 +1075,7 @@ struct JobListPopover: View {
                     Spacer()
                     Button("失敗をすべて無視") { model.dismissAllFailedJobs() }
                         .font(.caption)
-                        .help("失敗ジョブの記録を消去します（論文自体は消えません）")
+                        .help(String(localized: "失敗ジョブの記録を消去します（論文自体は消えません）"))
                 }
                 .padding(.horizontal, 10).padding(.vertical, 6)
                 .background(.bar)

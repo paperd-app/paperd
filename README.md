@@ -18,7 +18,7 @@ fully rebuildable, so your library stays portable and yours.
 
 ## Features
 
-- 🔎 **Hybrid semantic search** — full-text RAG (bge-m3) + FTS5 keyword + RRF fusion, and it's cross-lingual (ask in Japanese, find English papers).
+- 🔎 **Hybrid semantic search** — full-text RAG (Qwen3-Embedding via MLX) + FTS5 keyword + RRF fusion, and it's cross-lingual (ask in Japanese, find English papers).
 - 🤖 **MCP server for Claude** — let Claude search, cite, and read your library directly. Works even when the app is closed.
 - 📄 **PDF → AI-friendly Markdown** — Docling conversion with a review-and-correction workflow for the text the AI actually reads.
 - 🕸️ **Citation graph** — per-paper ego-network of citations and references.
@@ -28,7 +28,7 @@ fully rebuildable, so your library stays portable and yours.
 ## Requirements
 
 - macOS 14 (Sonoma) or later, Apple Silicon
-- ~2–3 GB free disk for the local AI models (downloaded on first setup)
+- free disk for the local worker environment and AI models (downloaded on first setup)
 
 ## Install
 

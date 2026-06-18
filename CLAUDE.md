@@ -22,5 +22,5 @@ cd worker && .venv/bin/pytest
 
 - `Sources/PaperdCore/` — アプリとMCPが共有するロジック。UIに依存させない（テスト可能性のため）
 - `Sources/PaperdMCPKit/` — MCPサーバロジック（stdio JSON-RPC自前実装）。CLI本体（PaperdMCP）と分離
-- `worker/` — Pythonワーカー（venv + pip）。Docling / bge-m3 は遅延import（テストは軽量依存のみで動く）
+- `worker/` — Pythonワーカー（venv + pip）。Docling / Qwen3-Embedding MLX は遅延import（テストは軽量依存のみで動く）
 - ファイルが正本・SQLiteは再構築可能なインデックス（→ docs/03）。この原則を壊す変更をしない

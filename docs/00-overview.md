@@ -21,7 +21,7 @@ paperd — 学術研究向け論文管理ソフトウェア 設計書
 | 論文取り込み | arXiv ID / DOI / PDFファイルドロップからの取り込み |
 | メタデータ解決 | arXiv API, Crossref, Semantic Scholar, OpenAlex からの書誌情報取得 |
 | 2形式保持 | オリジナルPDF + Markdown（Docling変換）をライブラリに保存 |
-| Semantic検索 | 全文RAG化（bge-m3 によるベクトル検索）、FTS5キーワード検索とのハイブリッド |
+| Semantic検索 | 全文RAG化（Qwen3-Embedding によるベクトル検索）、FTS5キーワード検索とのハイブリッド |
 | bibtex出力 | メタデータからの動的生成。UI / MCP双方から取得可能 |
 | MCPサーバ | 検索・bibtex・全文取得・論文追加の5ツールを提供（→ [07](07-mcp-server.md)） |
 | PDFビューア | PDFKitによるアプリ内閲覧 |
@@ -66,7 +66,7 @@ paperd — 学術研究向け論文管理ソフトウェア 設計書
 | stub論文 | 引用グラフ用に書誌情報のみ保持する未取り込み論文（`papers.is_stub = 1`） |
 | チャンク | RAG検索の単位となる本文の断片（セクション境界を尊重、約512トークン） |
 | ジョブ | 取り込みパイプラインの実行単位。`jobs`テーブルで永続化 |
-| ワーカー | PDF変換とembedding生成を担うPythonプロセス（Docling + sentence-transformers） |
+| ワーカー | PDF変換とembedding生成を担うPythonプロセス（Docling + Qwen3-Embedding MLX） |
 | MCPサーバ | `paperd-mcp`。stdioで動作するSwift製CLI。アプリ非起動時も動作可能 |
 | 解決（resolve） | 入力（arXiv ID / DOI / PDF / URL）から正規の書誌メタデータを確定する処理 |
 

@@ -20,7 +20,7 @@ from pathlib import Path
 import uvicorn
 
 from .app import create_app
-from .engines import BgeM3EmbeddingEngine, DoclingConversionEngine
+from .engines import DoclingConversionEngine, Qwen3EmbeddingEngine
 from .idle import IdleTracker
 
 
@@ -60,7 +60,7 @@ def main(argv: list[str] | None = None) -> None:
     app = create_app(
         args.token,
         DoclingConversionEngine(),
-        BgeM3EmbeddingEngine(),
+        Qwen3EmbeddingEngine(),
         idle_tracker=idle_tracker,
     )
 

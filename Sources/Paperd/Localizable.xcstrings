@@ -641,6 +641,46 @@
         }
       }
     },
+    "✅ Semanticモデル準備完了 (model_loaded: %@)\n": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✅ Semantic model ready (model_loaded: %@)\n"
+          }
+        }
+      }
+    },
+    "⚠️ Semanticモデルのwarmupに失敗しました: %@\n": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚠️ Semantic model warmup failed: %@\n"
+          }
+        }
+      }
+    },
+    "❌ Python 3.11+ が見つかりません。上の案内に従ってインストールしてください。\n": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "❌ Python 3.11+ was not found. Install it using the instructions above.\n"
+          }
+        }
+      }
+    },
+    "❌ worker パスが解決できません。\n": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "❌ Could not resolve the worker path.\n"
+          }
+        }
+      }
+    },
     "❌ 終了コード %lld\n": {
       "localizations": {
         "en": {
@@ -1331,6 +1371,26 @@
         }
       }
     },
+    "worker パス": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Worker Path"
+          }
+        }
+      }
+    },
+    "未検出": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not Detected"
+          }
+        }
+      }
+    },
     "ワーカー停止中": {
       "localizations": {
         "en": {
@@ -1367,6 +1427,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Worker running (%@)"
+          }
+        }
+      }
+    },
+    "Semanticモデルをwarmup中…\n": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Warming up semantic model…\n"
           }
         }
       }
@@ -2011,6 +2081,26 @@
         }
       }
     },
+    "再embeddingを開始": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Re-embedding"
+          }
+        }
+      }
+    },
+    "再embeddingジョブを投入しました。進行状況は処理中リストで確認できます。\n": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Queued re-embedding jobs. Track progress in the Processing list.\n"
+          }
+        }
+      }
+    },
     "書誌データベースを再構築しました。検索インデックス（%lld論文）はバックグラウンドで再計算されます。": {
       "localizations": {
         "en": {
@@ -2081,6 +2171,16 @@
         }
       }
     },
+    "検索インデックス（%lld論文）はバックグラウンドで再embeddingされます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search indexes (%lld papers) will be re-embedded in the background."
+          }
+        }
+      }
+    },
     "検索結果": {
       "localizations": {
         "en": {
@@ -2131,12 +2231,32 @@
         }
       }
     },
-    "環境構築はDocling + PyTorchで2〜3GBのダウンロードを伴います。embeddingモデル（bge-m3、約2GB）は初回利用時に取得されます。": {
+    "全論文を再embedding": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Setup involves a 2–3 GB download for Docling + PyTorch. The embedding model (bge-m3, about 2 GB) is downloaded on first use."
+            "value": "Re-embed All Papers"
+          }
+        }
+      }
+    },
+    "全論文を再embeddingしますか？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Re-embed all papers?"
+          }
+        }
+      }
+    },
+    "環境構築はDocling + MLXを導入します。embeddingモデル（Qwen3-Embedding-0.6B 4bit、約335MB）は初回利用時に取得されます。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setup installs Docling and MLX. The embedding model (Qwen3-Embedding-0.6B 4bit, about 335 MB) is downloaded on first use."
           }
         }
       }
@@ -2157,6 +2277,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Image (not extracted in v1; see the PDF tab for the original)"
+          }
+        }
+      }
+    },
+    "変換済み論文のチャンク・embedding・FTSを再計算します。PDF再変換や書誌データベース再構築は行いません。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recomputes chunks, embeddings, and FTS for converted papers. This does not reconvert PDFs or rebuild the bibliographic database."
           }
         }
       }

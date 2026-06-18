@@ -34,7 +34,7 @@ struct CitationGraphView: View {
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 220)
-                .help("参考文献 = この論文が引用 / 被引用 = この論文を引用")
+                .help(String(localized: "参考文献 = この論文が引用 / 被引用 = この論文を引用"))
                 Picker("ホップ", selection: $hops) {
                     Text("1ホップ").tag(1)
                     Text("2ホップ").tag(2)
@@ -47,7 +47,7 @@ struct CitationGraphView: View {
                         Text("年代")
                     }
                     .frame(width: 140)
-                    .help("表示する出版年の下限")
+                    .help(String(localized: "表示する出版年の下限"))
                     Text(minYear > yearBounds.lowerBound ? "\(Int(minYear))年〜" : "全期間")
                         .font(.caption).foregroundStyle(.secondary)
                         .frame(width: 60, alignment: .leading)

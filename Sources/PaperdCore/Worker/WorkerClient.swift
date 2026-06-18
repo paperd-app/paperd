@@ -5,7 +5,7 @@ import Foundation
 public struct WorkerClient: Sendable {
     /// アプリが期待するワーカーのバージョン（worker/src/paperd_worker/__init__.py と同期。
     /// lock再利用時の旧プロセス検出に使う → docs/01 3.2節）
-    public static let expectedWorkerVersion = "0.2.1"
+    public static let expectedWorkerVersion = "0.2.2"
 
     public let baseURL: URL
     public let token: String

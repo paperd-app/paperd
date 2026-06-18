@@ -7,7 +7,7 @@ struct WorkerClientTests {
     @Test("warmUpEmbeddingModel: 未ロードならquery embeddingを実行する")
     func warmUpLoadsEmbeddingModel() async throws {
         let http = StubHTTPClient()
-        http.add("health", body: #"{"status":"ok","model_loaded":false,"version":"0.2.1"}"#)
+        http.add("health", body: #"{"status":"ok","model_loaded":false,"version":"0.2.2"}"#)
         http.add("embed", body: #"{"embeddings":[[0.0,1.0]],"model":"fake","dimensions":2}"#)
         let client = WorkerClient(baseURL: URL(string: "http://127.0.0.1:9999")!, token: "tok", http: http)
 
@@ -24,7 +24,7 @@ struct WorkerClientTests {
     @Test("warmUpEmbeddingModel: ロード済みならembedしない")
     func warmUpSkipsLoadedModel() async throws {
         let http = StubHTTPClient()
-        http.add("health", body: #"{"status":"ok","model_loaded":true,"version":"0.2.1"}"#)
+        http.add("health", body: #"{"status":"ok","model_loaded":true,"version":"0.2.2"}"#)
         let client = WorkerClient(baseURL: URL(string: "http://127.0.0.1:9999")!, token: "tok", http: http)
 
         try await client.warmUpEmbeddingModel()
