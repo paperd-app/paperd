@@ -181,6 +181,13 @@ public struct WorkerClient: Sendable {
         )
     }
 
+    /// Semantic検索の初回レイテンシを起動直後に支払うため、未ロードなら軽いquery embeddingを1回実行する。
+    public func warmUpEmbeddingModel() async throws {
+        let health = try await health()
+        guard !health.modelLoaded else { return }
+        _ = try await embed(texts: ["paperd semantic search warmup"], task: "query")
+    }
+
     // MARK: - 内部
 
     func get(path: String) async throws -> HTTPResponse {

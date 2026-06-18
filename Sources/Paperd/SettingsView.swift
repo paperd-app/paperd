@@ -249,6 +249,24 @@ struct WorkerSetupView: View {
                 let health = try await client.health()
                 await MainActor.run {
                     log += String(localized: "✅ 起動: \(client.baseURL.absoluteString) (model_loaded: \(String(describing: health.modelLoaded)))\n")
+                }
+                if !health.modelLoaded {
+                    await MainActor.run {
+                        log += String(localized: "Semanticモデルをwarmup中…\n")
+                    }
+                    do {
+                        try await client.warmUpEmbeddingModel()
+                        let warmed = try await client.health()
+                        await MainActor.run {
+                            log += String(localized: "✅ Semanticモデル準備完了 (model_loaded: \(String(describing: warmed.modelLoaded)))\n")
+                        }
+                    } catch {
+                        await MainActor.run {
+                            log += String(localized: "⚠️ Semanticモデルのwarmupに失敗しました: \(String(describing: error))\n")
+                        }
+                    }
+                }
+                await MainActor.run {
                     isRunning = false
                 }
             } catch {

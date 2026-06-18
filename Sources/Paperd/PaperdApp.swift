@@ -216,7 +216,10 @@ final class AppModel: ObservableObject {
         guard let dir = workerDirectory else { return }
         Task {
             let manager = WorkerProcessManager(workerDirectory: dir)
-            _ = try? await manager.startOrReuseVerified()
+            if let client = try? await manager.startOrReuseVerified() {
+                await refreshWorkerStatus()
+                try? await client.warmUpEmbeddingModel()
+            }
             await refreshWorkerStatus()
         }
     }
