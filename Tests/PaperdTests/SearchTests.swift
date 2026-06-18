@@ -141,9 +141,9 @@ struct SearchIndexTests {
         let (store, root) = try makeTempLibrary()
         defer { cleanup(root) }
         let index = SearchIndex(db: store.db)
-        #expect(!(try index.needsReembedding(modelName: "BAAI/bge-m3", dimensions: 1024)), "メタ未記録時はfalse")
-        try index.recordEmbeddingMeta(modelName: "BAAI/bge-m3", dimensions: 1024)
-        #expect(!(try index.needsReembedding(modelName: "BAAI/bge-m3", dimensions: 1024)))
+        #expect(!(try index.needsReembedding(modelName: "mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ", dimensions: 1024)), "メタ未記録時はfalse")
+        try index.recordEmbeddingMeta(modelName: "mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ", dimensions: 1024)
+        #expect(!(try index.needsReembedding(modelName: "mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ", dimensions: 1024)))
         #expect(try index.needsReembedding(modelName: "other-model", dimensions: 768))
     }
 

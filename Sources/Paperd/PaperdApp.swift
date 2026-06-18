@@ -44,7 +44,7 @@ struct PaperdApp: App {
                 Button("PDFファイル / フォルダから取り込む…") { model.pickAndImportFiles() }
                     .keyboardShortcut("o")
             }
-            // ⌘F: 検索フィールドへフォーカス（searchableは自動でFindにバインドされない → docs/09 6節）
+            // ⌘F: 検索フィールドへフォーカス（IME制御のため独自NSSearchFieldを使う → docs/09 6節）
             CommandGroup(after: .textEditing) {
                 Button("ライブラリを検索") { model.searchPresented = true }
                     .keyboardShortcut("f")
@@ -216,7 +216,10 @@ final class AppModel: ObservableObject {
         guard let dir = workerDirectory else { return }
         Task {
             let manager = WorkerProcessManager(workerDirectory: dir)
-            _ = try? await manager.startOrReuseVerified()
+            if let client = try? await manager.startOrReuseVerified() {
+                await refreshWorkerStatus()
+                try? await client.warmUpEmbeddingModel()
+            }
             await refreshWorkerStatus()
         }
     }
@@ -491,6 +494,25 @@ final class AppModel: ObservableObject {
             reloadJobs()
             sidebarSelection = .smart(.processing)
             rebuildMessage = String(localized: "書誌データベースを再構築しました。検索インデックス（\(enqueued)論文）はバックグラウンドで再計算されます。")
+        } catch {
+            errorMessage = String(describing: error)
+        }
+    }
+
+    /// 変換済み本文からチャンク・embedding・FTSを再計算する。
+    /// モデル変更時の再embedding用で、書誌DBの再構築やPDF再変換は行わない。
+    func reembedImportedPapers() {
+        guard let store, let queue else { return }
+        do {
+            var enqueued = 0
+            for paper in try store.allPapers() where paper.paperStatus == .indexed || paper.paperStatus == .pdfOnly {
+                if try queue.enqueueIfAbsent(kind: .reindex, paperId: paper.id, origin: .app) != nil {
+                    enqueued += 1
+                }
+            }
+            reloadJobs()
+            sidebarSelection = .smart(.processing)
+            rebuildMessage = String(localized: "検索インデックス（\(enqueued)論文）はバックグラウンドで再embeddingされます。")
         } catch {
             errorMessage = String(describing: error)
         }

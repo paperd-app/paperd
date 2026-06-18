@@ -111,7 +111,7 @@ struct SettingsView: View {
                                 Image(systemName: "doc.on.doc").font(.caption)
                             }
                             .buttonStyle(.plain)
-                            .help("コピー")
+                            .help(String(localized: "コピー"))
                         }
                     }
                 }
@@ -170,6 +170,7 @@ struct WorkerSetupView: View {
     @EnvironmentObject var model: AppModel
     @State private var log = ""
     @State private var isRunning = false
+    @State private var showReembedConfirm = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -188,9 +189,13 @@ struct WorkerSetupView: View {
                     startWorker()
                 }
                 .disabled(isRunning || model.workerDirectory == nil)
+                Button("全論文を再embedding") {
+                    showReembedConfirm = true
+                }
+                .disabled(isRunning || model.store == nil || model.queue == nil)
                 if isRunning { ProgressView().controlSize(.small) }
             }
-            Text("環境構築はDocling + PyTorchで2〜3GBのダウンロードを伴います。embeddingモデル（bge-m3、約2GB）は初回利用時に取得されます。")
+            Text("環境構築はDocling + MLXを導入します。embeddingモデル（Qwen3-Embedding-0.6B 4bit、約335MB）は初回利用時に取得されます。")
                 .font(.caption).foregroundStyle(.secondary)
             ScrollView {
                 Text(log.isEmpty ? String(localized: "ログ出力") : log)
@@ -200,6 +205,19 @@ struct WorkerSetupView: View {
             }
             .frame(height: 140)
             .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 6))
+        }
+        .confirmationDialog(
+            "全論文を再embeddingしますか？",
+            isPresented: $showReembedConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("再embeddingを開始") {
+                model.reembedImportedPapers()
+                log = String(localized: "再embeddingジョブを投入しました。進行状況は処理中リストで確認できます。\n")
+            }
+            Button("キャンセル", role: .cancel) {}
+        } message: {
+            Text("変換済み論文のチャンク・embedding・FTSを再計算します。PDF再変換や書誌データベース再構築は行いません。")
         }
     }
 
@@ -249,6 +267,24 @@ struct WorkerSetupView: View {
                 let health = try await client.health()
                 await MainActor.run {
                     log += String(localized: "✅ 起動: \(client.baseURL.absoluteString) (model_loaded: \(String(describing: health.modelLoaded)))\n")
+                }
+                if !health.modelLoaded {
+                    await MainActor.run {
+                        log += String(localized: "Semanticモデルをwarmup中…\n")
+                    }
+                    do {
+                        try await client.warmUpEmbeddingModel()
+                        let warmed = try await client.health()
+                        await MainActor.run {
+                            log += String(localized: "✅ Semanticモデル準備完了 (model_loaded: \(String(describing: warmed.modelLoaded)))\n")
+                        }
+                    } catch {
+                        await MainActor.run {
+                            log += String(localized: "⚠️ Semanticモデルのwarmupに失敗しました: \(String(describing: error))\n")
+                        }
+                    }
+                }
+                await MainActor.run {
                     isRunning = false
                 }
             } catch {

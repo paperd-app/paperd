@@ -93,7 +93,7 @@ def create_app(
             )
         except WorkerError:
             raise
-        except Exception as exc:  # MPSメモリ不足等。理由をエラーボディに乗せる
+        except Exception as exc:  # Metal/ML runtimeエラー等。理由をエラーボディに乗せる
             raise WorkerError("INTERNAL", f"embedding failed: {exc}") from exc
         return {
             "embeddings": embeddings,

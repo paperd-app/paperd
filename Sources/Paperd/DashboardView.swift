@@ -155,7 +155,7 @@ struct LibraryDashboardView: View {
                             .background(.quaternary.opacity(0.6), in: Capsule())
                         }
                         .buttonStyle(.plain)
-                        .help("「\(list.localizedName)」リストを開く")
+                        .help(String(localized: "「\(list.localizedName)」リストを開く"))
                     }
                 }
             }

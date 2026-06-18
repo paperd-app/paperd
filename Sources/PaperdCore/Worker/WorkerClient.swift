@@ -5,7 +5,7 @@ import Foundation
 public struct WorkerClient: Sendable {
     /// アプリが期待するワーカーのバージョン（worker/src/paperd_worker/__init__.py と同期。
     /// lock再利用時の旧プロセス検出に使う → docs/01 3.2節）
-    public static let expectedWorkerVersion = "0.2.1"
+    public static let expectedWorkerVersion = "0.2.2"
 
     public let baseURL: URL
     public let token: String
@@ -179,6 +179,13 @@ public struct WorkerClient: Sendable {
             modelLoaded: (json["model_loaded"] as? Bool) ?? false,
             version: (json["version"] as? String) ?? ""
         )
+    }
+
+    /// Semantic検索の初回レイテンシを起動直後に支払うため、未ロードなら軽いquery embeddingを1回実行する。
+    public func warmUpEmbeddingModel() async throws {
+        let health = try await health()
+        guard !health.modelLoaded else { return }
+        _ = try await embed(texts: ["paperd semantic search warmup"], task: "query")
     }
 
     // MARK: - 内部

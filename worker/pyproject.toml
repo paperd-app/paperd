@@ -1,7 +1,7 @@
 [project]
 name = "paperd-worker"
-version = "0.2.1"
-description = "paperd Python worker: PDF conversion (Docling) and embeddings (bge-m3) over localhost HTTP"
+version = "0.2.2"
+description = "paperd Python worker: PDF conversion (Docling) and embeddings (Qwen3-Embedding MLX) over localhost HTTP"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi",
@@ -10,11 +10,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Heavy ML runtime (multi-GB with PyTorch). Lazily imported at runtime only.
+# Heavy ML runtime. Lazily imported at runtime only.
 ml = [
     "ocrmac>=1.0",
     "docling>=2.0",
-    "sentence-transformers>=3.0",
+    "mlx>=0.31",
+    "mlx-lm>=0.31",
 ]
 # Test deps. PEP 735 [dependency-groups] is not standard pip; keep here so
 # `pip install -e ".[dev]"` works.

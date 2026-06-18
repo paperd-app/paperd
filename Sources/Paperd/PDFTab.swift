@@ -57,7 +57,7 @@ struct PDFTab: View {
                     } label: {
                         Label("代替PDF（プレプリント等）を自動で探す", systemImage: "arrow.triangle.2.circlepath.doc.on.clipboard")
                     }
-                    .help("S2/OpenAlexの補完情報を更新し、arXiv版・OA版のPDFを再探索します")
+                    .help(String(localized: "S2/OpenAlexの補完情報を更新し、arXiv版・OA版のPDFを再探索します"))
                     .padding(.bottom, 16)
                 }
             }
@@ -89,7 +89,7 @@ struct SupplementsSection: View {
                     Image(systemName: "plus")
                 }
                 .controlSize(.small)
-                .help("Supplementary等の補助ファイルを追加（ドロップでも追加できます）")
+                .help(String(localized: "Supplementary等の補助ファイルを追加（ドロップでも追加できます）"))
             }
             if !files.isEmpty {
                 FlowLikeList(files: files, onOpen: { NSWorkspace.shared.open($0) }, onDelete: remove)
@@ -154,7 +154,7 @@ struct FlowLikeList: View {
                         .background(.quaternary.opacity(0.6), in: Capsule())
                     }
                     .buttonStyle(.plain)
-                    .help("クリックで開く: \(file.lastPathComponent)")
+                    .help(String(localized: "クリックで開く: \(file.lastPathComponent)"))
                     .contextMenu {
                         Button(role: .destructive) {
                             onDelete(file)
