@@ -232,20 +232,30 @@ public enum WorkerLocator {
         return nil
     }
 
-    /// `locate()` を試し、未配置なら配布バンドル同梱の `Resources/worker` を Application Support
-    /// へ展開して URL を返す。同梱ワーカーが存在しない場合は nil。展開時の I/O エラーは throw。
-    public static func locateOrDeploy() throws -> URL? {
-        if let dir = locate() { return dir }
+    /// 配布バンドル同梱の `Resources/worker` を Application Support へ展開して URL を返す。
+    ///
+    /// 同梱ワーカーが存在する場合は、既に App Support に展開済みの worker より同梱版を優先し、
+    /// `deployIfNeeded()` のバージョン比較を必ず通す。Homebrew / .app 更新後に古い App Support
+    /// worker を先に拾ってしまうと、アプリ本体と worker の期待バージョンがずれて reindex/embed が
+    /// `MODEL_NOT_READY` で失敗するため。
+    ///
+    /// 同梱ワーカーが存在しない開発実行では `locateFallback`（既定は `locate()`）で dev / 既存
+    /// App Support worker を探す。展開時の I/O エラーは throw。
+    public static func locateOrDeploy(
+        bundleURL: URL = Bundle.main.bundleURL,
+        resourceURL: URL? = Bundle.main.resourceURL,
+        destDir: URL = WorkerDeployment.defaultDestDir,
+        locateFallback: () -> URL? = { locate() }
+    ) throws -> URL? {
         let fm = FileManager.default
-        let bundle = Bundle.main.bundleURL
         let bundledCandidates: [URL] = [
-            Bundle.main.resourceURL?.appendingPathComponent("worker"),
-            bundle.deletingLastPathComponent().appendingPathComponent("Resources/worker"),
+            resourceURL?.appendingPathComponent("worker"),
+            bundleURL.deletingLastPathComponent().appendingPathComponent("Resources/worker"),
         ].compactMap { $0 }
         for src in bundledCandidates
         where fm.fileExists(atPath: src.appendingPathComponent("pyproject.toml").path) {
-            return try WorkerDeployment(bundledDir: src).deployIfNeeded()
+            return try WorkerDeployment(bundledDir: src, destDir: destDir).deployIfNeeded()
         }
-        return nil
+        return locateFallback()
     }
 }
