@@ -241,11 +241,20 @@ public enum WorkerLocator {
     ///
     /// 同梱ワーカーが存在しない開発実行では `locateFallback`（既定は `locate()`）で dev / 既存
     /// App Support worker を探す。展開時の I/O エラーは throw。
+    public static func locateOrDeploy() throws -> URL? {
+        try locateOrDeploy(
+            bundleURL: Bundle.main.bundleURL,
+            resourceURL: Bundle.main.resourceURL,
+            destDir: WorkerDeployment.defaultDestDir,
+            locateFallback: { locate() }
+        )
+    }
+
     public static func locateOrDeploy(
-        bundleURL: URL = Bundle.main.bundleURL,
-        resourceURL: URL? = Bundle.main.resourceURL,
-        destDir: URL = WorkerDeployment.defaultDestDir,
-        locateFallback: () -> URL? = { locate() }
+        bundleURL: URL,
+        resourceURL: URL?,
+        destDir: URL,
+        locateFallback: () -> URL?
     ) throws -> URL? {
         let fm = FileManager.default
         let bundledCandidates: [URL] = [
