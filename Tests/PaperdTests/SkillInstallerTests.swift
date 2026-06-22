@@ -94,4 +94,39 @@ struct WorkerDeploymentTests {
             destDir: root.appendingPathComponent("dest"))
         #expect(try deployment.deployIfNeeded() == nil)
     }
+
+    @Test("locateOrDeployは既存App Supportより同梱ワーカーを優先して更新する")
+    func locateOrDeployPrefersBundledWorkerOverExistingFallback() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("deploy-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let resourceURL = root.appendingPathComponent("Resources")
+        let bundled = resourceURL.appendingPathComponent("worker")
+        try FileManager.default.createDirectory(at: bundled.appendingPathComponent("src/paperd_worker"), withIntermediateDirectories: true)
+        try Data("[project]\nname = \"paperd-worker\"\nversion = \"2.0.0\"\n".utf8)
+            .write(to: bundled.appendingPathComponent("pyproject.toml"))
+        try Data("__version__ = \"2.0.0\"".utf8)
+            .write(to: bundled.appendingPathComponent("src/paperd_worker/__init__.py"))
+
+        let existing = root.appendingPathComponent("appsupport-worker")
+        try FileManager.default.createDirectory(at: existing.appendingPathComponent("src/paperd_worker"), withIntermediateDirectories: true)
+        try Data("[project]\nname = \"paperd-worker\"\nversion = \"1.0.0\"\n".utf8)
+            .write(to: existing.appendingPathComponent("pyproject.toml"))
+        try Data("__version__ = \"1.0.0\"".utf8)
+            .write(to: existing.appendingPathComponent("src/paperd_worker/__init__.py"))
+        let venvMarker = existing.appendingPathComponent(".venv/marker")
+        try FileManager.default.createDirectory(at: existing.appendingPathComponent(".venv"), withIntermediateDirectories: true)
+        try Data("env".utf8).write(to: venvMarker)
+
+        let resolved = try #require(try WorkerLocator.locateOrDeploy(
+            bundleURL: root.appendingPathComponent("Paperd.app"),
+            resourceURL: resourceURL,
+            destDir: existing,
+            locateFallback: { existing }
+        ))
+
+        #expect(resolved == existing)
+        #expect(WorkerDeployment.version(of: existing) == "2.0.0")
+        #expect(FileManager.default.fileExists(atPath: venvMarker.path), ".venvは温存")
+    }
 }
